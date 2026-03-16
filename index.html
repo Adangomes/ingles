@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>GET IT</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:#0f172a;
+color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+.app{
+width:90%;
+max-width:420px;
+background:#1e293b;
+padding:25px;
+border-radius:15px;
+text-align:center;
+}
+
+.logo{
+font-size:30px;
+font-weight:bold;
+margin-bottom:10px;
+}
+
+.phrase{
+font-size:24px;
+margin:20px 0;
+}
+
+.pronunciation{
+color:#38bdf8;
+margin-top:10px;
+font-size:18px;
+}
+
+.meaning{
+color:#94a3b8;
+margin-top:10px;
+font-size:17px;
+}
+
+.spoken{
+margin-top:20px;
+font-size:18px;
+color:#22c55e;
+}
+
+button{
+width:100%;
+padding:14px;
+margin-top:10px;
+border:none;
+border-radius:8px;
+font-size:16px;
+cursor:pointer;
+}
+
+.listen{background:#2563eb;color:white;}
+.speak{background:#16a34a;color:white;}
+.next{background:#4f46e5;color:white;}
+
+.mic{
+width:60px;
+height:60px;
+border-radius:50%;
+background:#16a34a;
+margin:20px auto;
+display:none;
+animation:pulse 1s infinite;
+}
+
+@keyframes pulse{
+0%{transform:scale(1)}
+50%{transform:scale(1.2)}
+100%{transform:scale(1)}
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="app">
+
+<div class="logo">GET IT</div>
+
+<div class="phrase" id="phrase"></div>
+
+<div class="pronunciation" id="pronunciation"></div>
+
+<div class="meaning" id="meaning"></div>
+
+<button class="listen" onclick="hear()">Hear phrase</button>
+
+<button class="speak" onclick="listenUser()">Speak</button>
+
+<div class="mic" id="mic"></div>
+
+<div class="spoken" id="spoken"></div>
+
+<button class="next" onclick="next()">Next phrase</button>
+
+</div>
+
+<script>
+
+/* FRASES */
+
+const lessons=[
+
+{
+phrase:"I want coffee today",
+pronunciation:"ai uant cófi tudêi",
+meaning:"Eu quero café hoje"
+},
+
+{
+phrase:"I like English",
+pronunciation:"ai laik inglish",
+meaning:"Eu gosto de inglês"
+},
+
+{
+phrase:"We need water",
+pronunciation:"uí niid uóter",
+meaning:"Nós precisamos de água"
+},
+
+{
+phrase:"They watch movies tonight",
+pronunciation:"dei uótch muvies tunaite",
+meaning:"Eles assistem filmes hoje à noite"
+},
+
+{
+phrase:"I study English every day",
+pronunciation:"ai stâdi inglish évri dei",
+meaning:"Eu estudo inglês todos os dias"
+},
+
+{
+phrase:"She drinks coffee",
+pronunciation:"shi drincs cófi",
+meaning:"Ela bebe café"
+},
+
+{
+phrase:"He learns English",
+pronunciation:"ri lerns inglish",
+meaning:"Ele aprende inglês"
+},
+
+{
+phrase:"We practice English",
+pronunciation:"uí practis inglish",
+meaning:"Nós praticamos inglês"
+},
+
+{
+phrase:"I prefer tea today",
+pronunciation:"ai prifér ti tudêi",
+meaning:"Eu prefiro chá hoje"
+},
+
+{
+phrase:"You open the door",
+pronunciation:"iu oupen dê dor",
+meaning:"Você abre a porta"
+}
+
+]
+
+let index=0
+
+function load(){
+
+document.getElementById("phrase").innerText=lessons[index].phrase
+
+document.getElementById("pronunciation").innerText=
+"Pronúncia: "+lessons[index].pronunciation
+
+document.getElementById("meaning").innerText=
+"Significado: "+lessons[index].meaning
+
+document.getElementById("spoken").innerText=""
+
+}
+
+load()
+
+/* OUVIR FRASE */
+
+function hear(){
+
+let msg=new SpeechSynthesisUtterance(lessons[index].phrase)
+
+msg.lang="en-GB"
+
+speechSynthesis.speak(msg)
+
+}
+
+/* ESCUTAR USUÁRIO */
+
+function listenUser(){
+
+const SpeechRecognition =
+window.SpeechRecognition || window.webkitSpeechRecognition
+
+if(!SpeechRecognition){
+
+alert("Reconhecimento de voz não suportado neste navegador")
+
+return
+
+}
+
+const mic=document.getElementById("mic")
+const spoken=document.getElementById("spoken")
+
+spoken.innerText=""
+mic.style.display="block"
+
+const recognition=new SpeechRecognition()
+
+recognition.lang="en-GB"
+recognition.interimResults=false
+recognition.maxAlternatives=1
+
+recognition.start()
+
+recognition.onresult=function(event){
+
+mic.style.display="none"
+
+let text=event.results[0][0].transcript
+
+spoken.innerText="You said: "+text
+
+}
+
+recognition.onerror=function(){
+
+mic.style.display="none"
+
+spoken.innerText="Erro ao capturar voz"
+
+}
+
+}
+
+/* PRÓXIMA FRASE */
+
+function next(){
+
+index++
+
+if(index>=lessons.length){
+
+index=0
+
+}
+
+load()
+
+}
+
+</script>
+
+</body>
+</html>
