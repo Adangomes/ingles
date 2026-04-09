@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini Design System - Exercício UI</title>
+    <title>Design System Lab - Comparativo de Hierarquia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #6366f1;
@@ -11,223 +12,156 @@
             --text-main: #111111;
             --text-sub: #676767;
             --white: #ffffff;
-            --transition: all 0.3s ease;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: all 0.4s ease; }
 
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg);
             color: var(--text-main);
-            line-height: 1.6;
-            padding: 20px;
+            padding: 40px;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 900px;
             margin: 0 auto;
             background: var(--white);
             padding: 40px;
-            border-radius: 12px;
-            shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
         }
 
-        header {
-            border-bottom: 2px solid #eee;
-            padding-bottom: 20px;
+        /* Estilo do Botão de Pânico (Toggle) */
+        .debug-menu {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1e293b;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 12px;
             margin-bottom: 30px;
         }
 
-        h1 { font-size: 2.5rem; margin-bottom: 10px; color: var(--primary); }
-
-        /* Controles de Personalidade */
-        .controls {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            background: #f1f5f9;
-            padding: 20px;
+        .btn-toggle {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
             border-radius: 8px;
-            margin-bottom: 40px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.7rem;
         }
 
-        .control-group label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 8px;
+        /* Estilos de Tipografia (O que será removido no modo "Sem Design") */
+        .has-design h2 { font-size: 48px; line-height: 1.1; margin-bottom: 20px; font-weight: 800; letter-spacing: -1px; }
+        .has-design p { font-size: 18px; color: var(--text-sub); margin-bottom: 30px; line-height: 1.6; }
+        .has-design .badge { 
+            display: inline-block; padding: 6px 16px; border-radius: 50px; 
+            font-size: 12px; font-weight: bold; margin-bottom: 20px; text-transform: uppercase;
+        }
+        .has-design .btn-cta { 
+            padding: 15px 35px; border-radius: 8px; border: none; 
+            font-weight: bold; cursor: pointer; font-size: 16px;
+        }
+
+        /* MODO SEM DESIGN (Tudo igual) */
+        .no-design h2, .no-design p, .no-design .btn-cta, .no-design .badge {
+            font-size: 16px !important;
+            font-weight: 400 !important;
+            color: #000 !important;
+            background: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            display: block !important;
+            font-family: serif !important; /* Fonte padrão do sistema */
+            line-height: 1 !important;
+            letter-spacing: normal !important;
+            text-transform: none !important;
+            border: none !important;
+        }
+        .no-design h2::after { content: " (Isso era um título)"; font-style: italic; color: red !important; font-size: 12px !important; }
+
+        .accessibility-box {
+            margin-top: 40px;
+            padding: 20px;
+            border-left: 4px solid #10b981;
+            background: #f0fdf4;
             font-size: 0.9rem;
         }
-
-        select {
-            width: 100%;
-            padding: 10px;
-            border-radius: 6px;
-            border: 1px solid #cbd5e1;
-        }
-
-        /* Área do Showcase */
-        .preview-section {
-            border: 1px dashed #cbd5e1;
-            padding: 30px;
-            border-radius: 8px;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-        }
-
-        /* Escala Tipográfica Dinâmica */
-        #preview-title { font-weight: 800; line-height: 1.2; margin-bottom: 16px; }
-        #preview-body { color: var(--text-sub); margin-bottom: 24px; }
-
-        .btn-preview {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: var(--transition);
-        }
-
-        /* Info de Acessibilidade */
-        .accessibility-tag {
-            margin-top: 30px;
-            font-size: 0.85rem;
-            padding: 10px;
-            background: #ecfdf5;
-            border-left: 4px solid #10b981;
-            color: #065f46;
-        }
-
-        .token-list {
-            margin-top: 20px;
-            display: flex;
-            gap: 10px;
-            font-family: monospace;
-            font-size: 0.8rem;
-        }
-
-        .token { background: #eee; padding: 2px 6px; border-radius: 4px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <header>
-        <h1>Mini Design System Builder</h1>
-        <p>Aplicação prática de Tipografia e Cores na UI</p>
-    </header>
-
-    <div class="controls">
-        <div class="control-group">
-            <label>1. Escolha o Produto</label>
-            <select id="product-select" onchange="updateSystem()">
-                <option value="fintech">Fintech (Banco Digital)</option>
-                <option value="saude">Saúde (App de Meditação)</option>
-                <option value="luxo">E-commerce de Luxo</option>
-            </select>
+    <div class="debug-menu">
+        <div>
+            <strong>Modo de Visualização:</strong>
+            <span id="status-text">Com Design System</span>
         </div>
-        
-        <div class="control-group">
-            <label>2. Escala Tipográfica (Base)</label>
-            <select id="scale-select" onchange="updateSystem()">
-                <option value="16">Padrão (16px)</option>
-                <option value="18">Acessível (18px)</option>
-            </select>
-        </div>
+        <button class="btn-toggle" onclick="toggleDesign()">Remover Tipografia</button>
     </div>
 
-    <div class="preview-section" id="main-preview">
-        <span class="badge" id="style-badge">Confiança & Segurança</span>
-        <h2 id="preview-title">Organize sua vida financeira com segurança.</h2>
-        <p id="preview-body">
-            Este é um exemplo de texto secundário aplicado com contraste controlado. 
-            A tipografia deve guiar o olhar do usuário através da hierarquia visual, 
-            garantindo que a informação mais importante seja lida primeiro.
+    <div id="preview-area" class="has-design">
+        <span class="badge" id="badge">Fintech Premium</span>
+        <h2 id="title">Segurança total para seus ativos digitais.</h2>
+        <p id="body-text">
+            Nossa plataforma utiliza criptografia de ponta e uma interface pensada na legibilidade para que você nunca perca o controle do seu dinheiro. A hierarquia visual guia seus olhos para o que importa.
         </p>
-        <button class="btn-preview" id="preview-btn">Acessar Minha Conta</button>
+        <button class="btn-cta" id="cta">Criar Conta Grátis</button>
 
-        <div class="accessibility-tag" id="acc-info">
-            ✅ <strong>Status de Acessibilidade:</strong> Contraste WCAG AA atingido (4.5:1).
-        </div>
-
-        <div class="token-list">
-            <span>Tokens:</span>
-            <span class="token" id="token-font">Font: Geometric Sans</span>
-            <span class="token" id="token-color">Primary: #6366f1</span>
+        <div class="accessibility-box" id="acc">
+            <strong>Checklist de Aula:</strong>
+            <ul>
+                <li>Contrast Ratio: 7.1:1 (Pass AA)</li>
+                <li>Base Scale: 16px / 1.5 Line-height</li>
+                <li>Font: Geometric Sans-Serif</li>
+            </ul>
         </div>
     </div>
 </div>
 
 <script>
-    const systems = {
-        fintech: {
-            title: "Organize sua vida financeira com segurança.",
-            badge: "Confiança & Segurança",
-            primary: "#1e40af",
-            bgBtn: "#1e40af",
-            fontFamily: "'Segoe UI', Roboto, sans-serif",
-            personality: "Séria e Geométrica",
-            acc: "Azul profundo garante legibilidade em fundos claros."
-        },
-        saude: {
-            title: "Respire fundo e encontre seu equilíbrio.",
-            badge: "Calma & Bem-estar",
-            primary: "#059669",
-            bgBtn: "#059669",
-            fontFamily: "'Georgia', serif",
-            personality: "Humanista e Orgânica",
-            acc: "Verde sutil para reduzir o cansaço visual."
-        },
-        luxo: {
-            title: "A exclusividade em cada detalhe.",
-            badge: "Sofisticação & Elegância",
-            primary: "#111111",
-            bgBtn: "#b45309",
-            fontFamily: "'Times New Roman', serif",
-            personality: "Clássica e Refinada",
-            acc: "Alto contraste (Preto/Dourado) para legibilidade premium."
+    let isDesignOn = true;
+
+    function toggleDesign() {
+        const area = document.getElementById('preview-area');
+        const btn = document.querySelector('.btn-toggle');
+        const status = document.getElementById('status-text');
+        const acc = document.getElementById('acc');
+
+        if (isDesignOn) {
+            area.classList.remove('has-design');
+            area.classList.add('no-design');
+            btn.innerText = "Restaurar Design";
+            btn.style.backgroundColor = "#10b981";
+            status.innerText = "Sem Tipografia (Caos Visual)";
+            acc.style.display = "none";
+        } else {
+            area.classList.remove('no-design');
+            area.classList.add('has-design');
+            btn.innerText = "Remover Tipografia";
+            btn.style.backgroundColor = "#ef4444";
+            status.innerText = "Com Design System";
+            acc.style.display = "block";
+            updateTheme(); // Restaura as cores do tema
         }
-    };
-
-    function updateSystem() {
-        const product = document.getElementById('product-select').value;
-        const scale = document.getElementById('scale-select').value;
-        const data = systems[product];
-
-        // Atualizar Textos
-        document.getElementById('preview-title').innerText = data.title;
-        document.getElementById('style-badge').innerText = data.badge;
-        
-        // Aplicar Estilos Visuais
-        const previewTitle = document.getElementById('preview-title');
-        const previewBtn = document.getElementById('preview-btn');
-        const badge = document.getElementById('style-badge');
-
-        previewTitle.style.fontFamily = data.fontFamily;
-        previewTitle.style.fontSize = (scale * 2.5) + "px";
-        
-        previewBtn.style.backgroundColor = data.bgBtn;
-        previewBtn.style.color = "#ffffff";
-        
-        badge.style.backgroundColor = data.bgBtn + "22"; // Transparência no badge
-        badge.style.color = data.bgBtn;
-
-        // Atualizar Tokens e Info
-        document.getElementById('token-font').innerText = `Font: ${data.personality}`;
-        document.getElementById('token-color').innerText = `Primary: ${data.primary}`;
-        document.getElementById('acc-info').innerHTML = `✅ <strong>Acessibilidade:</strong> ${data.acc}`;
+        isDesignOn = !isDesignOn;
     }
 
-    // Inicializar
-    updateSystem();
+    function updateTheme() {
+        // Mantém as cores originais do seu projeto inicial
+        document.getElementById('title').style.color = "#1e40af";
+        document.getElementById('cta').style.backgroundColor = "#1e40af";
+        document.getElementById('cta').style.color = "#fff";
+        document.getElementById('badge').style.backgroundColor = "#1e40af22";
+        document.getElementById('badge').style.color = "#1e40af";
+    }
+
+    updateTheme();
 </script>
 
 </body>
