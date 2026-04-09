@@ -3,203 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Design System Lab - Escalas e Hierarquia</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&family=Playfair+Display:wght@700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <title>Design System Store - UI Showcase</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Playfair+Display:wght@700&family=Fira+Code&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #1e40af;
+            --primary: #2563eb;
             --bg: #f8fafc;
             --white: #ffffff;
-            --gray-200: #e2e8f0;
-            --gray-500: #64748b;
+            --gray-100: #f1f5f9;
+            --gray-300: #cbd5e1;
+            --gray-600: #475569;
             --gray-900: #0f172a;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; transition: all 0.3s ease; }
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
 
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg);
             color: var(--gray-900);
-            padding: 20px;
+            padding-bottom: 50px;
         }
 
-        .main-grid {
+        /* Layout Grid */
+        .layout {
             display: grid;
             grid-template-columns: 320px 1fr;
-            gap: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
+            min-height: 100vh;
         }
 
-        /* Painel de Controle lateral */
-        .sidebar {
+        /* Sidebar de Controles */
+        .controls-sidebar {
             background: var(--white);
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            height: fit-content;
+            padding: 30px;
+            border-right: 1px solid var(--gray-300);
+            position: sticky;
+            top: 0;
+            height: 100vh;
         }
 
-        .control-group { margin-bottom: 20px; }
-        label { display: block; font-size: 12px; font-weight: bold; color: var(--gray-500); text-transform: uppercase; margin-bottom: 8px; }
+        .section-title { font-size: 0.75rem; font-weight: 800; color: var(--gray-600); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; border-bottom: 2px solid var(--gray-100); padding-bottom: 5px; }
+
+        .group { margin-bottom: 25px; }
+        label { display: block; font-size: 0.85rem; margin-bottom: 8px; font-weight: 600; }
+        select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--gray-300); background: var(--gray-100); cursor: pointer; }
+
+        .btn-toggle {
+            width: 100%; padding: 15px; border: none; border-radius: 8px; cursor: pointer;
+            font-weight: 800; text-transform: uppercase; font-size: 0.7rem;
+            background: #ef4444; color: white; margin-top: 10px;
+        }
+
+        /* Área da Loja (Canvas) */
+        .store-canvas { padding: 40px; }
         
-        select, input { width: 100%; padding: 10px; border: 1px solid var(--gray-200); border-radius: 6px; background: #f1f5f9; }
+        /* Classes de Design System */
+        .has-design .nav-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1px solid var(--gray-300); }
+        .has-design .display-lg { font-size: 48px; font-weight: 800; line-height: 1.1; margin-bottom: 10px; letter-spacing: -2px; }
+        .has-design .headline-md { font-size: 24px; font-weight: 600; margin-bottom: 20px; }
+        
+        /* Grid de Produtos */
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .has-design .card { background: var(--white); padding: 20px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid transparent; }
+        .has-design .card:hover { border-color: var(--primary); transform: translateY(-5px); }
+        
+        .has-design .price { font-size: 20px; font-weight: 800; color: var(--primary); margin: 15px 0; display: block; }
+        .has-design .btn-buy { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; background: var(--primary); color: white; }
 
-        .btn-panic {
-            width: 100%;
-            padding: 12px;
-            background: #ef4444;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-        }
+        /* Escala de Cores 50-900 (Slide 48) */
+        .color-scale { display: flex; gap: 4px; margin-top: 40px; }
+        .shade { flex: 1; height: 45px; border-radius: 4px; position: relative; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
 
-        /* Canvas de Visualização */
-        .canvas {
-            background: var(--white);
-            padding: 50px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            min-height: 500px;
-        }
-
-        /* Escala de Cores (50-900) */
-        .palette-container { display: flex; gap: 8px; margin-top: 30px; }
-        .swatch { flex: 1; height: 40px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.05); position: relative; }
-        .swatch::after { content: attr(data-label); font-size: 8px; position: absolute; bottom: -15px; left: 0; color: var(--gray-500); }
-
-        /* Estilos de Texto (Modo Com Design) */
-        .has-design .display { font-size: 56px; font-weight: 800; line-height: 1.1; margin-bottom: 15px; letter-spacing: -1.5px; }
-        .has-design .headline { font-size: 32px; font-weight: 700; margin-bottom: 10px; }
-        .has-design .body-text { font-size: 16px; line-height: 1.6; color: var(--gray-500); margin-bottom: 25px; }
-        .has-design .btn-preview { 
-            padding: 14px 28px; border: none; border-radius: 8px; 
-            font-weight: bold; cursor: pointer; display: inline-block;
-        }
-
-        /* MODO SEM DESIGN (Reseta tudo para o básico) */
+        /* MODO SEM DESIGN */
         .no-design * {
-            font-size: 16px !important;
-            font-weight: 400 !important;
-            color: #000 !important;
-            background: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            display: block !important;
-            font-family: serif !important;
-            line-height: 1.2 !important;
-            border: none !important;
-            letter-spacing: normal !important;
+            font-family: serif !important; font-size: 14px !important; font-weight: 400 !important;
+            color: black !important; background: none !important; border: none !important;
+            box-shadow: none !important; margin: 0 !important; padding: 0 !important;
+            display: block !important; text-align: left !important; transform: none !important;
         }
+        .no-design .btn-buy::before { content: "[BOTÃO: "; }
+        .no-design .btn-buy::after { content: "]"; }
     </style>
 </head>
 <body>
 
-<div class="main-grid">
-    <aside class="sidebar">
-        <h2 style="font-size: 1.2rem; margin-bottom: 20px;">Configurações</h2>
+<div class="layout">
+    <aside class="controls-sidebar">
+        <h2 class="section-title">Painel de Estilos</h2>
         
-        <div class="control-group">
-            <label>1. Produto (Paleta de Cores)</label>
-            <select id="theme-select" onchange="updateUI()">
-                <option value="fintech">Fintech (Azul Confiança)</option>
-                <option value="saude">Saúde (Verde Equilíbrio)</option>
-                <option value="luxo">Luxo (Nude/Dourado)</option>
+        <div class="group">
+            <label>Marca & Tom de Cor</label>
+            <select id="brand-select" onchange="updateStore()">
+                <option value="tech">Tech Blue (Inovação)</option>
+                <option value="gamer">Gamer Red (Energia)</option>
+                <option value="eco">Eco Green (Natureza)</option>
+                <option value="luxury">Deep Black (Luxo)</option>
             </select>
         </div>
 
-        <div class="control-group">
-            <label>2. Escala Tipográfica (Base)</label>
-            <select id="scale-select" onchange="updateUI()">
+        <div class="group">
+            <label>Tipografia (Anatomia)</label>
+            <select id="font-select" onchange="updateStore()">
+                <option value="'Inter'">Sans-Serif (Moderna)</option>
+                <option value="'Playfair Display'">Serif (Elegante)</option>
+                <option value="'Fira Code'">Monospace (Técnica)</option>
+            </select>
+        </div>
+
+        <div class="group">
+            <label>Escala de Fonte Base</label>
+            <select id="scale-select" onchange="updateStore()">
                 <option value="16">Padrão (16px)</option>
                 <option value="18">Acessível (18px)</option>
             </select>
         </div>
 
-        <div class="control-group">
-            <label>3. Fonte (Personalidade)</label>
-            <select id="font-select" onchange="updateUI()">
-                <option value="'Inter'">Geometric Sans</option>
-                <option value="'Playfair Display'">Classic Serif</option>
-                <option value="'Roboto Mono'">Technical Mono</option>
-            </select>
-        </div>
-
-        <button class="btn-panic" id="panic-btn" onclick="toggleDesign()">Remover Design</button>
+        <button class="btn-toggle" id="toggle-btn" onclick="toggleDesign()">Remover Design</button>
+        
+        <p style="font-size: 11px; color: #94a3b8; margin-top: 20px;">
+            *Use o botão acima para demonstrar a importância da hierarquia visual na UX.
+        </p>
     </aside>
 
-    <main class="canvas has-design" id="preview-area">
-        <div id="content-wrap">
-            <h1 class="display" id="ui-title">Segurança em cada transação.</h1>
-            <h2 class="headline" id="ui-subtitle">Sua fintech de confiança.</h2>
-            <p class="body-text" id="ui-body">
-                Este texto utiliza uma escala modular para garantir que a leitura seja fluida. 
-                A cor primária define a ação principal, enquanto os tons neutros organizam a informação secundária.
-            </p>
-            <button class="btn-preview" id="ui-btn">Acessar Conta</button>
+    <main class="store-canvas has-design" id="store-area">
+        <nav class="nav-bar">
+            <strong id="logo-text">MydiStore.sys</strong>
+            <span>Carrinho (0)</span>
+        </nav>
 
-            <div style="margin-top: 50px;">
-                <label>Escala de Cores Gerada (Tokens 50-900)</label>
-                <div class="palette-container" id="color-palette">
-                    </div>
+        <header>
+            <h1 class="display-lg" id="main-title">A tecnologia do futuro, hoje.</h1>
+            <p class="headline-md" id="main-sub">Confira nossa nova linha de acessórios premium.</p>
+        </header>
+
+        <div class="product-grid">
+            <div class="card">
+                <div style="height: 120px; background: #f1f5f9; border-radius: 8px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center;">📦 Foto</div>
+                <h3>Smartwatch v4</h3>
+                <span class="price">R$ 1.299,00</span>
+                <button class="btn-buy">Comprar Agora</button>
             </div>
+            <div class="card">
+                <div style="height: 120px; background: #f1f5f9; border-radius: 8px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center;">📦 Foto</div>
+                <h3>Fone Noise Cancelling</h3>
+                <span class="price">R$ 899,00</span>
+                <button class="btn-buy">Comprar Agora</button>
+            </div>
+        </div>
+
+        <div id="design-tokens">
+            <h3 class="section-title" style="margin-top: 60px;">Paleta de Cores Gerada (Escala 50-900)</h3>
+            <div class="color-scale" id="palette"></div>
         </div>
     </main>
 </div>
 
 <script>
-    const themes = {
-        fintech: { primary: '#1e40af', title: 'Segurança em cada transação.', sub: 'Sua fintech de confiança.' },
-        saude: { primary: '#059669', title: 'Respire fundo, viva melhor.', sub: 'Meditação e equilíbrio.' },
-        luxo: { primary: '#b45309', title: 'Exclusividade em cada detalhe.', sub: 'Coleção Premium 2026.' }
+    const brands = {
+        tech: { color: '#2563eb', title: 'A tecnologia do futuro, hoje.' },
+        gamer: { color: '#dc2626', title: 'Suba de nível no seu setup.' },
+        eco: { color: '#16a34a', title: 'Sustentabilidade em cada clique.' },
+        luxury: { color: '#0f172a', title: 'O padrão ouro da sofisticação.' }
     };
 
-    let designActive = true;
+    let isDesignOn = true;
 
-    function updateUI() {
-        if(!designActive) return;
+    function updateStore() {
+        if(!isDesignOn) return;
 
-        const theme = themes[document.getElementById('theme-select').value];
-        const baseSize = document.getElementById('scale-select').value;
+        const brand = brands[document.getElementById('brand-select').value];
         const font = document.getElementById('font-select').value;
+        const scale = document.getElementById('scale-select').value;
 
-        // Atualizar Textos
-        document.getElementById('ui-title').innerText = theme.title;
-        document.getElementById('ui-subtitle').innerText = theme.sub;
+        // Atualiza Cores e Fontes
+        document.body.style.setProperty('--primary', brand.color);
+        document.getElementById('store-area').style.fontFamily = font;
+        document.getElementById('main-title').innerText = brand.title;
+        document.body.style.fontSize = scale + 'px';
 
-        // Aplicar Estilos
-        const area = document.getElementById('preview-area');
-        area.style.fontFamily = font;
-        
-        document.getElementById('ui-title').style.color = theme.primary;
-        document.getElementById('ui-btn').style.backgroundColor = theme.primary;
-        document.getElementById('ui-btn').style.color = '#fff';
-
-        // Atualizar Fonte Base
-        document.getElementById('ui-body').style.fontSize = baseSize + 'px';
-
-        // Gerar Paleta Visual (Tokens)
-        const palette = document.getElementById('color-palette');
+        // Gera a escala visual de cores do slide
+        const palette = document.getElementById('palette');
         palette.innerHTML = '';
         [50, 100, 300, 500, 700, 900].forEach(level => {
-            const div = document.createElement('div');
-            div.className = 'swatch';
-            div.style.backgroundColor = theme.primary;
-            div.style.opacity = level / 900;
-            div.setAttribute('data-label', level);
-            palette.appendChild(div);
+            const shade = document.createElement('div');
+            shade.className = 'shade';
+            shade.style.backgroundColor = brand.color;
+            shade.style.opacity = level / 900;
+            shade.innerText = level;
+            palette.appendChild(shade);
         });
     }
 
     function toggleDesign() {
-        const area = document.getElementById('preview-area');
-        const btn = document.getElementById('panic-btn');
+        const area = document.getElementById('store-area');
+        const btn = document.getElementById('toggle-btn');
         
-        if (designActive) {
+        if (isDesignOn) {
             area.classList.replace('has-design', 'no-design');
             btn.innerText = "Restaurar Design System";
             btn.style.backgroundColor = "#10b981";
@@ -207,15 +206,14 @@
             area.classList.replace('no-design', 'has-design');
             btn.innerText = "Remover Design";
             btn.style.backgroundColor = "#ef4444";
-            updateUI();
+            updateStore();
         }
-        designActive = !designActive;
+        isDesignOn = !isDesignOn;
     }
 
-    // Inicializar
-    updateUI();
+    // Inicialização
+    updateStore();
 </script>
 
 </body>
 </html>
- 
