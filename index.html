@@ -1,225 +1,350 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GET IT - LESSON 1 COMPLETE</title>
+    <title>ERP Varejo Moda - Painel de Testes</title>
     <style>
-        body {
-            margin: 0;
-            font-family: Arial;
-            background: #0f172a;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .app {
-            width: 90%;
-            max-width: 420px;
-            background: #1e293b;
-            padding: 25px;
-            border-radius: 15px;
-            text-align: center;
-        }
-
-        .logo {
-            font-size: 30px;
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #38bdf8;
-        }
-
-        .lesson-info {
-            font-size: 14px;
-            color: #94a3b8;
-            margin-bottom: 20px;
-        }
-
-        .phrase {
-            font-size: 22px;
-            margin: 20px 0;
-            min-height: 50px;
-            font-weight: bold;
-        }
-
-        .pronunciation {
-            color: #38bdf8;
-            margin-top: 10px;
-            font-size: 18px;
-            font-style: italic;
-        }
-
-        .meaning {
-            color: #94a3b8;
-            margin-top: 10px;
-            font-size: 17px;
-        }
-
-        .spoken {
-            margin-top: 20px;
-            font-size: 18px;
-            color: #22c55e;
-        }
-
-        button {
-            width: 100%;
-            padding: 14px;
-            margin-top: 10px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .listen { background: #2563eb; color: white; }
-        .speak { background: #16a34a; color: white; }
-        .next { background: #4f46e5; color: white; }
-
-        .mic {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: #ef4444;
-            margin: 20px auto;
-            display: none;
-            animation: pulse 1s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1) }
-            50% { transform: scale(1.2) }
-            100% { transform: scale(1) }
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f4f6f9; color: #333; display: flex; height: 100vh; overflow: hidden; }
+        
+        /* Sidebar */
+        aside { width: 220px; background-color: #1e293b; color: #fff; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        aside h2 { font-size: 1.2rem; margin-bottom: 20px; color: #38bdf8; text-transform: uppercase; letter-spacing: 1px; }
+        aside button { background: none; border: none; color: #cbd5e1; padding: 12px; text-align: left; font-size: 0.95rem; cursor: pointer; border-radius: 6px; transition: 0.2s; }
+        aside button:hover, aside button.active { background-color: #334155; color: #fff; font-weight: bold; }
+        
+        /* Main Content */
+        main { flex: 1; padding: 25px; overflow-y: auto; }
+        .section { display: none; }
+        .section.active { display: block; }
+        
+        h1 { margin-bottom: 20px; font-size: 1.5rem; color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+        
+        /* Forms & Grid */
+        .card { background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group label { font-size: 0.85rem; font-weight: 600; color: #64748b; }
+        .form-group input, .form-group select { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; }
+        
+        /* Buttons */
+        .btn { background-color: #2563eb; color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; margin-top: 10px; }
+        .btn:hover { background-color: #1d4ed8; }
+        .btn-success { background-color: #16a34a; }
+        .btn-success:hover { background-color: #15803d; }
+        
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
+        th { background-color: #f8fafc; font-weight: 600; color: #475569; }
+        
+        /* PDV Layout */
+        .pdv-container { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        .cart-summary { background: #0f172a; color: #fff; padding: 20px; border-radius: 8px; display: flex; flex-direction: column; justify: space-between; }
+        .total-price { font-size: 2.2rem; font-weight: bold; color: #4ade80; margin: 15px 0; }
+        
+        /* Badge */
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
+        .badge-low { background-color: #fef2f2; color: #dc2626; }
+        .badge-ok { background-color: #f0fdf4; color: #16a34a; }
     </style>
 </head>
-
 <body>
 
-    <div class="app">
-        <div class="logo">GET IT</div>
-        <div class="lesson-info" id="lesson-info">LESSON 1</div>
+    <aside>
+        <h2>Moda ERP</h2>
+        <button class="nav-btn active" onclick="showSection('estoque')">📦 Estoque / Produtos</button>
+        <button class="nav-btn" onclick="showSection('pdv')">🛒 Frente de Caixa (PDV)</button>
+        <button class="nav-btn" onclick="showSection('vendas')">📊 Histórico de Vendas</button>
+    </aside>
 
-        <div class="phrase" id="phrase"></div>
-        <div class="pronunciation" id="pronunciation"></div>
-        <div class="meaning" id="meaning"></div>
+    <main>
+        <!-- SEÇÃO ESTOQUE -->
+        <section id="estoque" class="section active">
+            <h1>Gestão de Estoque & Grade (Moda)</h1>
+            <div class="card">
+                <h3>Cadastrar Novo Produto / SKU</h3>
+                <form id="form-produto" onsubmit="cadastrarProduto(event)" class="form-grid" style="margin-top: 15px;">
+                    <div class="form-group">
+                        <label>Código de Barras / SKU</label>
+                        <input type="text" id="prod-sku" required placeholder="Ex: VEST-FLOR-M">
+                    </div>
+                    <div class="form-group">
+                        <label>Descrição do Produto</label>
+                        <input type="text" id="prod-nome" required placeholder="Ex: Vestido Estampado">
+                    </div>
+                    <div class="form-group">
+                        <label>Tamanho</label>
+                        <select id="prod-tamanho">
+                            <option value="P">P</option>
+                            <option value="M">M</option>
+                            <option value="G">G</option>
+                            <option value="GG">GG</option>
+                            <option value="U">Único</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Cor</label>
+                        <input type="text" id="prod-cor" required placeholder="Ex: Pretos/Florido">
+                    </div>
+                    <div class="form-group">
+                        <label>Preço (R$)</label>
+                        <input type="number" step="0.01" id="prod-preco" required placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Qtd em Estoque</label>
+                        <input type="number" id="prod-qtd" required placeholder="0">
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <button type="submit" class="btn">Salvar no Estoque</button>
+                    </div>
+                </form>
+            </div>
 
-        <button class="listen" onclick="hear()">Hear phrase</button>
-        <button class="speak" onclick="listenUser()">Speak</button>
+            <table>
+                <thead>
+                    <tr>
+                        <th>SKU</th>
+                        <th>Produto</th>
+                        <th>Tamanho</th>
+                        <th>Cor</th>
+                        <th>Preço</th>
+                        <th>Estoque</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="tabela-estoque"></tbody>
+            </table>
+        </section>
 
-        <div class="mic" id="mic"></div>
-        <div class="spoken" id="spoken"></div>
+        <!-- SEÇÃO PDV -->
+        <section id="pdv" class="section">
+            <h1>Frente de Caixa (PDV)</h1>
+            <div class="pdv-container">
+                <div class="card">
+                    <h3>Adicionar Item à Venda</h3>
+                    <div style="display: flex; gap: 10px; margin-top: 15px; margin-bottom: 20px;">
+                        <select id="pdv-select-produto" style="flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1;"></select>
+                        <input type="number" id="pdv-qtd" value="1" min="1" style="width: 80px; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1;">
+                        <button class="btn" onclick="adicionarAoCarrinho()">Adicionar</button>
+                    </div>
 
-        <button class="next" onclick="next()">Next phrase</button>
-    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Qtd</th>
+                                <th>Preço Un.</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-carrinho"></tbody>
+                    </table>
+                </div>
+
+                <div class="cart-summary">
+                    <div>
+                        <h3>Resumo da Compra</h3>
+                        <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 5px;">Loja Roupas - Unidade Matriz</p>
+                        <hr style="border-color: #334155; margin: 15px 0;">
+                        <div>Total a Pagar:</div>
+                        <div class="total-price" id="pdv-total">R$ 0,00</div>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.85rem; color: #94a3b8;">Forma de Pagamento</label>
+                        <select id="pdv-pagamento" style="width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 15px; border-radius: 6px;">
+                            <option value="Cartão de Crédito">Cartão de Crédito</option>
+                            <option value="Cartão de Débito">Cartão de Débito</option>
+                            <option value="PIX">PIX</option>
+                            <option value="Dinheiro">Dinheiro</option>
+                        </select>
+                        <button class="btn btn-success" style="width: 100%; padding: 15px; font-size: 1.1rem;" onclick="finalizarVenda()">Emitir Pedido / Finalizar</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO HISTÓRICO DE VENDAS -->
+        <section id="vendas" class="section">
+            <h1>Relatório de Vendas (Consolidado ERP)</h1>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID Venda</th>
+                        <th>Data/Hora</th>
+                        <th>Itens</th>
+                        <th>Pagamento</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody id="tabela-vendas"></tbody>
+            </table>
+        </section>
+    </main>
 
     <script>
-        /* FRASES COMPLETAS DA LESSON 1 (PÁGINAS 1 A 9) */
-        const lessons = [
-            // Página 1 e 2
-            { phrase: "Hello", pronunciation: "relôu", meaning: "Olá" },
-            { phrase: "I am... I'm...", pronunciation: "ai ém... aim", meaning: "Eu sou / Eu estou" },
-            { phrase: "You are... You're...", pronunciation: "iú ár... iór", meaning: "Você é / Você está" },
-            { phrase: "Am I...? Yes, you're...", pronunciation: "ém ai? iés iór", meaning: "Eu sou...? Sim, você é..." },
-            { phrase: "Are you...? Yes, I'm...", pronunciation: "ár iú? iés aim", meaning: "Você é...? Sim, eu sou..." },
-            { phrase: "He is... He's... Jack", pronunciation: "ri iz... riz... djéc", meaning: "Ele é... Ele é (Jack)" },
-            { phrase: "She is... She's... Anna", pronunciation: "shi iz... shiz... éna", meaning: "Ela é... Ela é (Anna)" },
-            { phrase: "Is he Jack? Yes, he's Jack", pronunciation: "iz ri djéc? iés riz djéc", meaning: "Ele é o Jack? Sim, ele é o Jack" },
-            { phrase: "Is she Anna? Yes, she's Anna", pronunciation: "iz shi éna? iés shiz éna", meaning: "Ela é a Anna? Sim, ela é a Anna" },
-            
-            // Página 3
-            { phrase: "Pen, pencil, book, a", pronunciation: "pén, pênsil, búk, ei", meaning: "Caneta, lápis, livro, um/uma" },
-            { phrase: "What is...? What's this?", pronunciation: "uót iz? uóts dhis", meaning: "O que é...? O que é isto?" },
-            { phrase: "It is... It's...", pronunciation: "it iz... its", meaning: "Isto é / É" },
-            { phrase: "What's this? It's a pen", pronunciation: "uóts dhis? its ei pén", meaning: "O que é isto? É uma caneta" },
-            
-            // Página 4
-            { phrase: "Table, chair, light", pronunciation: "têibou, tchér, láit", meaning: "Mesa, cadeira, luz" },
-            { phrase: "Wall, floor, room", pronunciation: "uól, flór, rúm", meaning: "Parede, chão, sala" },
-            { phrase: "Ceiling, window, door", pronunciation: "sílin, uíndou, dór", meaning: "Teto, janela, porta" },
-            { phrase: "Clock, box, picture", pronunciation: "clóc, bócs, píctchur", meaning: "Relógio, caixa, quadro" },
-            { phrase: "Is this a pen? Yes, it's a pen", pronunciation: "iz dhis ei pén? iés its ei pén", meaning: "Isto é uma caneta? Sim, é uma caneta" },
-            
-            // Página 5
-            { phrase: "No, it is not, it isn't", pronunciation: "nou, it iz nót, it izênt", meaning: "Não, não é" },
-            { phrase: "Is this a pen? No, it isn't a pen; it's a pencil", pronunciation: "iz dhis ei pén? nou it izênt ei pén, its ei pênsil", meaning: "Isto é uma caneta? Não, é um lápis" },
-            { phrase: "Long, short, the, contraction", pronunciation: "lóng, shórt, dê, contrécshun", meaning: "Longo, curto, o/a, contração" },
-            { phrase: "Is the pen long? Yes, the pen's long", pronunciation: "iz dê pén lóng? iés dê pénz lóng", meaning: "A caneta é longa? Sim, a caneta é longa" },
-            
-            // Página 6 e 7
-            { phrase: "Is the room short? No, the room isn't short; it's long", pronunciation: "iz dê rúm shórt? nou dê rúm izênt shórt, its lóng", meaning: "A sala é curta? Não, é longa" },
-            { phrase: "Large, small", pronunciation: "lárdj, smól", meaning: "Grande, pequeno" },
-            { phrase: "Is the table small? No, the table isn't small; it's large", pronunciation: "iz dê têibou smól? nou dê têibou izênt smól, its lárdj", meaning: "A mesa é pequena? Não, é grande" },
-            { phrase: "City, town, village", pronunciation: "síti, táun, víledj", meaning: "Cidade grande, cidade, vila" },
-            { phrase: "London is a city. Windsor is a town. Grantchester is a village", pronunciation: "lândon iz ei síti. uíndzor iz ei táun. gránt-tchéster iz ei víledj", meaning: "Londres é uma cidade..." },
-            
-            // Página 8
-            { phrase: "Is the table long or short?", pronunciation: "iz dê têibou lóng ór shórt", meaning: "A mesa é longa ou curta?" },
-            { phrase: "Man, woman, boy, girl", pronunciation: "mén, uúman, bói, guérl", meaning: "Homem, mulher, menino, menina" },
-            { phrase: "Is he a man? Yes, he's a man", pronunciation: "iz ri ei mén? iés riz ei mén", meaning: "Ele é um homem? Sim, ele é um homem" },
-            
-            // Página 9
-            { phrase: "Number: one, two, three, four, five", pronunciation: "nâmber: uán, tchu, thrí, fór, fáiv", meaning: "Número: 1, 2, 3, 4, 5" },
-            { phrase: "What number's this? It's the number one", pronunciation: "uót nâmberz dhis? its dê nâmber uán", meaning: "Que número é este? É o número um" }
+        // Dados de Exemplo (Simulação de Banco de Dados)
+        let produtos = JSON.parse(localStorage.getItem('erp_produtos')) || [
+            { sku: 'BLU-CROP-P', nome: 'Blusa Crop Top', tamanho: 'P', cor: 'Branca', preco: 49.90, qtd: 10 },
+            { sku: 'JEAN-CALC-38', nome: 'Calça Jeans Wide Leg', tamanho: 'M', cor: 'Azul', preco: 119.90, qtd: 3 }
         ];
 
-        let index = 0;
+        let vendas = JSON.parse(localStorage.getItem('erp_vendas')) || [];
+        let carrinho = [];
 
-        function load() {
-            document.getElementById("phrase").innerText = lessons[index].phrase;
-            document.getElementById("pronunciation").innerText = "Pronúncia: " + lessons[index].pronunciation;
-            document.getElementById("meaning").innerText = "Significado: " + lessons[index].meaning;
-            document.getElementById("spoken").innerText = "";
-            document.getElementById("lesson-info").innerText = "LESSON 1 - Item " + (index + 1) + "/" + lessons.length;
+        function salvarDados() {
+            localStorage.setItem('erp_produtos', JSON.stringify(produtos));
+            localStorage.setItem('erp_vendas', JSON.stringify(vendas));
         }
 
-        load();
-
-        function hear() {
-            let msg = new SpeechSynthesisUtterance(lessons[index].phrase);
-            msg.lang = "en-GB"; // Sotaque britânico (comum no método Callan)
-            speechSynthesis.speak(msg);
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            event.target.classList.add('active');
+            renderizarTudo();
         }
 
-        function listenUser() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) {
-                alert("Seu navegador não suporta reconhecimento de voz.");
-                return;
-            }
-
-            const mic = document.getElementById("mic");
-            const spoken = document.getElementById("spoken");
-            spoken.innerText = "";
-            mic.style.display = "block";
-
-            const recognition = new SpeechRecognition();
-            recognition.lang = "en-GB";
-            recognition.start();
-
-            recognition.onresult = function (event) {
-                mic.style.display = "none";
-                let text = event.results[0][0].transcript;
-                spoken.innerText = "You said: " + text;
+        function cadastrarProduto(e) {
+            e.preventDefault();
+            const novo = {
+                sku: document.getElementById('prod-sku').value.toUpperCase(),
+                nome: document.getElementById('prod-nome').value,
+                tamanho: document.getElementById('prod-tamanho').value,
+                cor: document.getElementById('prod-cor').value,
+                preco: parseFloat(document.getElementById('prod-preco').value),
+                qtd: parseInt(document.getElementById('prod-qtd').value)
             };
 
-            recognition.onerror = function () {
-                mic.style.display = "none";
-                spoken.innerText = "Erro ao ouvir...";
-            };
+            produtos.push(novo);
+            salvarDados();
+            document.getElementById('form-produto').reset();
+            renderizarTudo();
+            alert('SKU cadastrado com sucesso!');
         }
 
-        function next() {
-            index++;
-            if (index >= lessons.length) {
-                index = 0;
-            }
-            load();
+        function renderizarTudo() {
+            // Renderizar Estoque
+            const tbodyEstoque = document.getElementById('tabela-estoque');
+            tbodyEstoque.innerHTML = '';
+            produtos.forEach(p => {
+                const status = p.qtd <= 3 
+                    ? `<span class="badge badge-low">Baixo (${p.qtd})</span>` 
+                    : `<span class="badge badge-ok">OK (${p.qtd})</span>`;
+                
+                tbodyEstoque.innerHTML += `
+                    <tr>
+                        <td><b>${p.sku}</b></td>
+                        <td>${p.nome}</td>
+                        <td>${p.tamanho}</td>
+                        <td>${p.cor}</td>
+                        <td>R$ ${p.preco.toFixed(2)}</td>
+                        <td>${p.qtd} un.</td>
+                        <td>${status}</td>
+                    </tr>
+                `;
+            });
+
+            // Renderizar Select do PDV
+            const selectPDV = document.getElementById('pdv-select-produto');
+            selectPDV.innerHTML = '<option value="">Selecione um produto...</option>';
+            produtos.forEach(p => {
+                if(p.qtd > 0) {
+                    selectPDV.innerHTML += `<option value="${p.sku}">${p.nome} (${p.tamanho}/${p.cor}) - R$ ${p.preco.toFixed(2)} [Estoque: ${p.qtd}]</option>`;
+                }
+            });
+
+            // Renderizar Vendas
+            const tbodyVendas = document.getElementById('tabela-vendas');
+            tbodyVendas.innerHTML = '';
+            vendas.forEach(v => {
+                tbodyVendas.innerHTML += `
+                    <tr>
+                        <td><b>#${v.id}</b></td>
+                        <td>${v.data}</td>
+                        <td>${v.itens.map(i => `${i.qtd}x ${i.nome}`).join('<br>')}</td>
+                        <td>${v.pagamento}</td>
+                        <td><b>R$ ${v.total.toFixed(2)}</b></td>
+                    </tr>
+                `;
+            });
         }
+
+        function adicionarAoCarrinho() {
+            const sku = document.getElementById('pdv-select-produto').value;
+            const qtd = parseInt(document.getElementById('pdv-qtd').value);
+            if(!sku) return alert('Selecione um produto!');
+
+            const prod = produtos.find(p => p.sku === sku);
+            
+            if (qtd > prod.qtd) {
+                return alert('Quantidade informada é maior do que o estoque disponível!');
+            }
+
+            carrinho.push({
+                sku: prod.sku,
+                nome: `${prod.nome} (${prod.tamanho}/${prod.cor})`,
+                preco: prod.preco,
+                qtd: qtd,
+                subtotal: prod.preco * qtd
+            });
+
+            renderizarCarrinho();
+        }
+
+        function renderizarCarrinho() {
+            const tbody = document.getElementById('tabela-carrinho');
+            tbody.innerHTML = '';
+            let total = 0;
+
+            carrinho.forEach(item => {
+                total += item.subtotal;
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${item.nome}</td>
+                        <td>${item.qtd}</td>
+                        <td>R$ ${item.preco.toFixed(2)}</td>
+                        <td>R$ ${item.subtotal.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('pdv-total').innerText = `R$ ${total.toFixed(2)}`;
+        }
+
+        function finalizarVenda() {
+            if(carrinho.length === 0) return alert('O carrinho está vazio!');
+
+            const total = carrinho.reduce((acc, item) => acc + item.subtotal, 0);
+            const formaPagto = document.getElementById('pdv-pagamento').value;
+
+            // Dar baixa no estoque
+            carrinho.forEach(itemCart => {
+                const prod = produtos.find(p => p.sku === itemCart.sku);
+                if(prod) prod.qtd -= itemCart.qtd;
+            });
+
+            // Gravar venda
+            const novaVenda = {
+                id: Math.floor(100000 + Math.random() * 900000),
+                data: new Date().toLocaleString('pt-BR'),
+                itens: carrinho,
+                pagamento: formaPagto,
+                total: total
+            };
+
+            vendas.unshift(novaVenda);
+            salvarDados();
+
+            carrinho = [];
+            renderizarCarrinho();
+            renderizarTudo();
+            alert('Venda realizada com sucesso! Estoque atualizado.');
+        }
+
+        // Inicialização
+        renderizarTudo();
     </script>
 </body>
 </html>
