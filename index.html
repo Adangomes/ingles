@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ERP Loja de Roupas</title>
 <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
@@ -59,7 +60,7 @@
     <div id="pdv" class="section" style="display:none;">
         <h3>Frente de Caixa</h3>
         <select id="produtoSelect"></select>
-        <input type="number" id="qtdVenda" placeholder="Qtd" min="1">
+        <input type="number" id="qtdVenda" placeholder="Qtd" min="1" value="1">
         <button class="btn btn-primary" onclick="adicionarCarrinho()">Adicionar ao Carrinho</button>
         <h3>Carrinho</h3>
         <table id="tabelaCarrinho">
@@ -101,66 +102,112 @@ function showSection(id) {
     if(id==='historico') renderHistorico();
 }
 
-document.getElementById('formProduto').addEventListener('submit', e=>{
+document.getElementById('formProduto').addEventListener('submit', e => {
     e.preventDefault();
     let produto = {
-        sku: sku.value,
-        descricao: descricao.value,
-        tamanho: tamanho.value,
-        cor: cor.value,
-        preco: parseFloat(preco.value),
-        quantidade: parseInt(quantidade.value)
+        sku: document.getElementById('sku').value,
+        descricao: document.getElementById('descricao').value,
+        tamanho: document.getElementById('tamanho').value,
+        cor: document.getElementById('cor').value,
+        preco: parseFloat(document.getElementById('preco').value),
+        quantidade: parseInt(document.getElementById('quantidade').value)
     };
     produtos.push(produto);
     localStorage.setItem('produtos', JSON.stringify(produtos));
     e.target.reset();
     renderEstoque();
+    alert('Produto cadastrado com sucesso!');
 });
 
-function renderEstoque(){
+function renderEstoque() {
     let tbody = document.querySelector('#tabelaEstoque tbody');
-    tbody.innerHTML='';
-    produtos.forEach(p=>{
-        let status = p.quantidade<=3 ? '<span class="badge low-stock">Baixo</span>' : '<span class="badge ok-stock">OK</span>';
+    tbody.innerHTML = '';
+    produtos.forEach(p => {
+        let status = p.quantidade <= 3 ? '<span class="badge low-stock">Baixo</span>' : '<span class="badge ok-stock">OK</span>';
         tbody.innerHTML += `<tr><td>${p.sku}</td><td>${p.descricao}</td><td>${p.tamanho}</td><td>${p.cor}</td><td>R$ ${p.preco.toFixed(2)}</td><td>${p.quantidade}</td><td>${status}</td></tr>`;
     });
 }
 
-function atualizarSelectProdutos(){
+function atualizarSelectProdutos() {
     let select = document.getElementById('produtoSelect');
-    select.innerHTML='';
-    produtos.forEach((p,i)=>{
+    select.innerHTML = '';
+    if(produtos.length === 0) {
+        select.innerHTML = '<option value="">Nenhum produto cadastrado</option>';
+        return;
+    }
+    produtos.forEach((p, i) => {
         select.innerHTML += `<option value="${i}">${p.descricao} - ${p.tamanho} - ${p.cor} (Estoque: ${p.quantidade})</option>`;
     });
 }
 
-function adicionarCarrinho(){
-    let idx = produtoSelect.value;
-    let qtd = parseInt(qtdVenda.value);
-    if(!idx || !qtd) return;
-    if(qtd>produtos[idx].quantidade){ alert('Quantidade maior que estoque!'); return; }
-    carrinho.push({produto:produtos[idx], qtd});
+function adicionarCarrinho() {
+    let select = document.getElementById('produtoSelect');
+    let idx = select.value;
+    let qtdInput = document.getElementById('qtdVenda');
+    let qtd = parseInt(qtdInput.value);
+    
+    if(idx === "" || isNaN(qtd) || qtd <= 0) {
+        alert('Selecione um produto e uma quantidade válida!');
+        return;
+    }
+    
+    if(qtd > produtos[idx].quantidade) { 
+        alert('Quantidade maior que o estoque disponível!'); 
+        return; 
+    }
+    
+    carrinho.push({ index: idx, produto: produtos[idx], qtd });
     renderCarrinho();
 }
 
-function renderCarrinho(){
+function renderCarrinho() {
     let tbody = document.querySelector('#tabelaCarrinho tbody');
-    tbody.innerHTML='';
-    let total=0;
-    carrinho.forEach(item=>{
-        let subtotal = item.qtd*item.produto.preco;
-        total+=subtotal;
-        tbody.innerHTML += `<tr><td>${item.produto.descricao}</td><td>${item.qtd}</td><td>R$ ${item.produto.preco.toFixed(2)}</td><td>R$ ${subtotal.toFixed(2)}</td></tr>`;
+    tbody.innerHTML = '';
+    let total = 0;
+    carrinho.forEach(item => {
+        let subtotal = item.qtd * item.produto.preco;
+        total += subtotal;
+        tbody.innerHTML += `<tr><td>${item.produto.descricao} (${item.produto.tamanho}/${item.produto.cor})</td><td>${item.qtd}</td><td>R$ ${item.produto.preco.toFixed(2)}</td><td>R$ ${subtotal.toFixed(2)}</td></tr>`;
     });
-    document.getElementById('totalVenda').innerText=total.toFixed(2);
+    document.getElementById('totalVenda').innerText = total.toFixed(2);
 }
 
-function finalizarVenda(){
-    if(carrinho.length===0){ alert('Carrinho vazio!'); return; }
+function finalizarVenda() {
+    if(carrinho.length === 0) { alert('Carrinho vazio!'); return; }
+    
     let total = parseFloat(document.getElementById('totalVenda').innerText);
-    let pagamento = pagamento.value;
-    let id = vendas.length+1;
-    let data = new Date().toLocaleString();
-    let itens = carrinho.map(i=>`${i.produto.descricao} (${i.qtd})`).join(', ');
-    vendas.push({id,data,itens,pagamento,total});
+    let formaPagamento = document.getElementById('pagamento').value;
+    let id = vendas.length + 1;
+    let data = new Date().toLocaleString('pt-BR');
+    let itens = carrinho.map(i => `${i.qtd}x ${i.produto.descricao}`).join(', ');
+    
+    // Abater do estoque
+    carrinho.forEach(item => {
+        produtos[item.index].quantidade -= item.qtd;
+    });
+    
+    vendas.push({ id, data, itens, pagamento: formaPagamento, total });
+    
+    // Salvar no LocalStorage
+    localStorage.setItem('produtos', JSON.stringify(produtos));
     localStorage.setItem('vendas', JSON.stringify(vendas));
+    
+    carrinho = [];
+    renderCarrinho();
+    atualizarSelectProdutos();
+    alert('Venda realizada com sucesso!');
+}
+
+function renderHistorico() {
+    let tbody = document.querySelector('#tabelaHistorico tbody');
+    tbody.innerHTML = '';
+    vendas.forEach(v => {
+        tbody.innerHTML += `<tr><td>#${v.id}</td><td>${v.data}</td><td>${v.itens}</td><td>${v.pagamento}</td><td>R$ ${v.total.toFixed(2)}</td></tr>`;
+    });
+}
+
+// Inicializar tela
+renderEstoque();
+</script>
+</body>
+</html>
