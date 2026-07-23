@@ -3,89 +3,172 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ERP Loja de Roupas</title>
+<title>ERP Moda & PDV Profissional</title>
 <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { display: flex; height: 100vh; background: #f4f6f9; color: #333; }
-    .sidebar { width: 220px; background: #2c3e50; color: #fff; display: flex; flex-direction: column; }
-    .sidebar h2 { text-align: center; padding: 20px; border-bottom: 1px solid #444; }
-    .sidebar button { background: none; border: none; color: #fff; padding: 15px; text-align: left; cursor: pointer; }
-    .sidebar button:hover { background: #34495e; }
+    
+    /* Sidebar */
+    .sidebar { width: 220px; background: #1e293b; color: #fff; display: flex; flex-direction: column; flex-shrink: 0; }
+    .sidebar h2 { text-align: center; padding: 20px; font-size: 1.2rem; background: #0f172a; border-bottom: 1px solid #334155; }
+    .sidebar button { background: none; border: none; color: #cbd5e1; padding: 15px 20px; text-align: left; cursor: pointer; font-size: 0.95rem; transition: 0.2s; }
+    .sidebar button:hover, .sidebar button.active { background: #334155; color: #fff; border-left: 4px solid #3b82f6; }
+    
+    /* Area Principal */
     .content { flex: 1; padding: 20px; overflow-y: auto; }
-    h3 { margin-bottom: 15px; }
-    form input, form select { margin: 5px; padding: 8px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    table, th, td { border: 1px solid #ccc; }
-    th, td { padding: 8px; text-align: center; }
-    .badge { padding: 3px 8px; border-radius: 4px; color: #fff; font-size: 12px; }
-    .low-stock { background: #e74c3c; }
-    .ok-stock { background: #2ecc71; }
-    .cart-summary { margin-top: 15px; }
-    .btn { padding: 10px 15px; margin: 5px; cursor: pointer; border: none; border-radius: 4px; }
-    .btn-primary { background: #2980b9; color: #fff; }
-    .btn-danger { background: #c0392b; color: #fff; }
-    .btn-success { background: #27ae60; color: #fff; }
+    .section { display: none; }
+    .section.active { display: block; }
+    
+    h3 { margin-bottom: 15px; color: #1e293b; font-size: 1.3rem; }
+    
+    /* Formulários e Inputs */
+    .form-group { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
+    input, select { padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; font-size: 0.95rem; }
+    input:focus, select:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
+    
+    /* Botões */
+    .btn { padding: 10px 16px; cursor: pointer; border: none; border-radius: 6px; font-weight: 600; font-size: 0.9rem; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-success { background: #16a34a; color: #fff; }
+    .btn-success:hover { background: #15803d; }
+    .btn-danger { background: #dc2626; color: #fff; }
+    .btn-danger:hover { background: #b91c1c; }
+    .btn-sm { padding: 4px 8px; font-size: 0.8rem; }
+
+    /* Tabelas Estilizadas */
+    .table-container { overflow-x: auto; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-top: 15px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th, td { padding: 12px 15px; border-bottom: 1px solid #e2e8f0; }
+    th { background: #f8fafc; color: #64748b; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    
+    .badge { padding: 4px 8px; border-radius: 12px; color: #fff; font-size: 0.75rem; font-weight: bold; }
+    .low-stock { background: #ef4444; }
+    .ok-stock { background: #22c55e; }
+
+    /* Layout PDV Avançado */
+    .pdv-grid { display: grid; grid-template-columns: 1fr 340px; gap: 20px; }
+    @media (max-width: 900px) { .pdv-grid { grid-template-columns: 1fr; } }
+    
+    .pdv-card { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .pdv-search-box { display: flex; gap: 10px; margin-bottom: 15px; }
+    .pdv-search-box input { flex: 1; }
+    
+    .checkout-box { background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 15px; }
+    .summary-line { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 1rem; color: #475569; }
+    .summary-total { font-size: 1.5rem; font-weight: bold; color: #0f172a; border-top: 2px stroke #cbd5e1; padding-top: 10px; }
+    
+    .shortcut-bar { display: flex; gap: 10px; font-size: 0.8rem; color: #64748b; margin-top: 10px; background: #e2e8f0; padding: 8px 12px; border-radius: 6px; }
+    .shortcut-bar kbd { background: #fff; padding: 2px 5px; border-radius: 4px; border: 1px solid #cbd5e1; font-weight: bold; }
 </style>
 </head>
 <body>
+
 <div class="sidebar">
     <h2>ERP Moda</h2>
-    <button onclick="showSection('estoque')">Estoque / Produtos</button>
-    <button onclick="showSection('pdv')">Frente de Caixa (PDV)</button>
-    <button onclick="showSection('historico')">Histórico de Vendas</button>
+    <button id="btn-estoque" class="active" onclick="showSection('estoque')">📦 Estoque / Produtos</button>
+    <button id="btn-pdv" onclick="showSection('pdv')">🛒 Frente de Caixa (PDV)</button>
+    <button id="btn-historico" onclick="showSection('historico')">📊 Histórico de Vendas</button>
 </div>
+
 <div class="content">
     <!-- ESTOQUE -->
-    <div id="estoque" class="section">
+    <div id="estoque" class="section active">
         <h3>Cadastro de Produto</h3>
-        <form id="formProduto">
-            <input type="text" id="sku" placeholder="Código de Barras/SKU" required>
-            <input type="text" id="descricao" placeholder="Descrição" required>
+        <form id="formProduto" class="form-group">
+            <input type="text" id="sku" placeholder="Código de Barras / SKU" required>
+            <input type="text" id="descricao" placeholder="Descrição da Peça" style="flex:2;" required>
             <select id="tamanho">
-                <option>P</option><option>M</option><option>G</option><option>GG</option><option>U</option>
+                <option value="P">P</option><option value="M">M</option><option value="G">G</option>
+                <option value="GG">GG</option><option value="U">Tamanho Único</option>
             </select>
-            <input type="text" id="cor" placeholder="Cor" required>
-            <input type="number" id="preco" placeholder="Preço (R$)" required step="0.01">
-            <input type="number" id="quantidade" placeholder="Quantidade" required>
-            <button class="btn btn-primary" type="submit">Cadastrar</button>
+            <input type="text" id="cor" placeholder="Cor / Estampa" required>
+            <input type="number" id="preco" placeholder="Preço (R$)" step="0.01" required>
+            <input type="number" id="quantidade" placeholder="Qtd Estoque" required>
+            <button class="btn btn-primary" type="submit">+ Cadastrar Peça</button>
         </form>
-        <h3>Produtos em Estoque</h3>
-        <table id="tabelaEstoque">
-            <thead><tr><th>SKU</th><th>Descrição</th><th>Tamanho</th><th>Cor</th><th>Preço</th><th>Qtd</th><th>Status</th></tr></thead>
-            <tbody></tbody>
-        </table>
+
+        <h3>Produtos Cadastrados</h3>
+        <div class="table-container">
+            <table id="tabelaEstoque">
+                <thead><tr><th>SKU</th><th>Descrição</th><th>Tam</th><th>Cor</th><th>Preço</th><th>Qtd</th><th>Status</th><th>Ações</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
 
     <!-- PDV -->
-    <div id="pdv" class="section" style="display:none;">
-        <h3>Frente de Caixa</h3>
-        <select id="produtoSelect"></select>
-        <input type="number" id="qtdVenda" placeholder="Qtd" min="1" value="1">
-        <button class="btn btn-primary" onclick="adicionarCarrinho()">Adicionar ao Carrinho</button>
-        <h3>Carrinho</h3>
-        <table id="tabelaCarrinho">
-            <thead><tr><th>Produto</th><th>Qtd</th><th>Preço</th><th>Subtotal</th></tr></thead>
-            <tbody></tbody>
-        </table>
-        <div class="cart-summary">
-            <p><strong>Total: R$ <span id="totalVenda">0.00</span></strong></p>
-            <select id="pagamento">
-                <option>Cartão de Crédito</option>
-                <option>Débito</option>
-                <option>PIX</option>
-                <option>Dinheiro</option>
-            </select>
-            <button class="btn btn-success" onclick="finalizarVenda()">Finalizar Venda</button>
+    <div id="pdv" class="section">
+        <h3>Frente de Caixa (PDV)</h3>
+        
+        <div class="pdv-grid">
+            <div class="pdv-card">
+                <!-- Busca de Produto -->
+                <div class="pdv-search-box">
+                    <input type="text" id="barcodeSearch" placeholder="🔍 Passe o leitor ou digite o SKU / Nome e aperte Enter" autofocus>
+                    <input type="number" id="qtdVenda" value="1" min="1" style="width: 70px;" placeholder="Qtd">
+                    <button class="btn btn-primary" onclick="buscarEAdicionar()">Adicionar</button>
+                </div>
+
+                <div class="shortcut-bar">
+                    <span><kbd>F2</kbd> Buscar Produto</span>
+                    <span><kbd>F4</kbd> Limpar Carrinho</span>
+                    <span><kbd>F8</kbd> Finalizar Venda</span>
+                </div>
+
+                <!-- Tabela do Carrinho -->
+                <div class="table-container">
+                    <table id="tabelaCarrinho">
+                        <thead><tr><th>Item</th><th>Qtd</th><th>Preço Un.</th><th>Subtotal</th><th>Ação</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Resumo Financeiro & Pagamento -->
+            <div class="pdv-card">
+                <h3>Resumo do Pedido</h3>
+                
+                <div class="form-group" style="margin-top: 15px;">
+                    <label style="width: 100%; font-size: 0.85rem; color: #64748b;">Desconto na Venda:</label>
+                    <input type="number" id="descontoValor" placeholder="0.00" step="0.01" style="flex:1;" oninput="renderCarrinho()">
+                    <select id="descontoTipo" style="width: 80px;" onchange="renderCarrinho()">
+                        <option value="R$">R$</option>
+                        <option value="%">%</option>
+                    </select>
+                </div>
+
+                <div class="checkout-box">
+                    <div class="summary-line"><span>Subtotal:</span><span>R$ <span id="subtotalVenda">0.00</span></span></div>
+                    <div class="summary-line"><span>Desconto:</span><span style="color: #dc2626;">- R$ <span id="descontoCalculado">0.00</span></span></div>
+                    <div class="summary-line summary-total"><span>Total:</span><span style="color: #16a34a;">R$ <span id="totalVenda">0.00</span></span></div>
+                </div>
+
+                <div style="margin-top: 15px;">
+                    <label style="display:block; margin-bottom: 5px; font-size: 0.85rem; color: #64748b;">Forma de Pagamento:</label>
+                    <select id="pagamento" style="width: 100%; margin-bottom: 15px;">
+                        <option>PIX</option>
+                        <option>Cartão de Crédito</option>
+                        <option>Cartão de Débito</option>
+                        <option>Dinheiro</option>
+                    </select>
+
+                    <button class="btn btn-success" style="width: 100%; padding: 15px; font-size: 1.1rem;" onclick="finalizarVenda()">Finalizar Venda (F8)</button>
+                    <button class="btn btn-danger btn-sm" style="width: 100%; margin-top: 10px;" onclick="limparCarrinho()">Cancelar / Limpar Carrinho</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- HISTÓRICO -->
-    <div id="historico" class="section" style="display:none;">
+    <div id="historico" class="section">
         <h3>Histórico de Vendas</h3>
-        <table id="tabelaHistorico">
-            <thead><tr><th>ID Pedido</th><th>Data/Hora</th><th>Itens</th><th>Pagamento</th><th>Total</th></tr></thead>
-            <tbody></tbody>
-        </table>
+        <div class="table-container">
+            <table id="tabelaHistorico">
+                <thead><tr><th># Pedido</th><th>Data/Hora</th><th>Itens Comprados</th><th>Pagamento</th><th>Desconto</th><th>Total</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -94,24 +177,42 @@ let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
 let vendas = JSON.parse(localStorage.getItem('vendas')) || [];
 let carrinho = [];
 
+// Alternar Seções
 function showSection(id) {
-    document.querySelectorAll('.section').forEach(sec => sec.style.display='none');
-    document.getElementById(id).style.display='block';
-    if(id==='estoque') renderEstoque();
-    if(id==='pdv') atualizarSelectProdutos();
-    if(id==='historico') renderHistorico();
+    document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+    document.querySelectorAll('.sidebar button').forEach(btn => btn.classList.remove('active'));
+    
+    document.getElementById(id).classList.add('active');
+    document.getElementById(`btn-${id}`).classList.add('active');
+    
+    if(id === 'estoque') renderEstoque();
+    if(id === 'pdv') {
+        renderCarrinho();
+        setTimeout(() => document.getElementById('barcodeSearch').focus(), 100);
+    }
+    if(id === 'historico') renderHistorico();
 }
 
+// Cadastro de Produto
 document.getElementById('formProduto').addEventListener('submit', e => {
     e.preventDefault();
+    let skuDigitado = document.getElementById('sku').value.trim();
+    
+    // Validar se SKU já existe
+    if(produtos.some(p => p.sku === skuDigitado)) {
+        alert('Já existe um produto cadastrado com esse Código/SKU!');
+        return;
+    }
+
     let produto = {
-        sku: document.getElementById('sku').value,
-        descricao: document.getElementById('descricao').value,
+        sku: skuDigitado,
+        descricao: document.getElementById('descricao').value.trim(),
         tamanho: document.getElementById('tamanho').value,
-        cor: document.getElementById('cor').value,
+        cor: document.getElementById('cor').value.trim(),
         preco: parseFloat(document.getElementById('preco').value),
         quantidade: parseInt(document.getElementById('quantidade').value)
     };
+
     produtos.push(produto);
     localStorage.setItem('produtos', JSON.stringify(produtos));
     e.target.reset();
@@ -119,94 +220,223 @@ document.getElementById('formProduto').addEventListener('submit', e => {
     alert('Produto cadastrado com sucesso!');
 });
 
+// Renderizar Estoque
 function renderEstoque() {
     let tbody = document.querySelector('#tabelaEstoque tbody');
     tbody.innerHTML = '';
-    produtos.forEach(p => {
+    produtos.forEach((p, index) => {
         let status = p.quantidade <= 3 ? '<span class="badge low-stock">Baixo</span>' : '<span class="badge ok-stock">OK</span>';
-        tbody.innerHTML += `<tr><td>${p.sku}</td><td>${p.descricao}</td><td>${p.tamanho}</td><td>${p.cor}</td><td>R$ ${p.preco.toFixed(2)}</td><td>${p.quantidade}</td><td>${status}</td></tr>`;
+        tbody.innerHTML += `
+            <tr>
+                <td><strong>${p.sku}</strong></td>
+                <td>${p.descricao}</td>
+                <td>${p.tamanho}</td>
+                <td>${p.cor}</td>
+                <td>R$ ${p.preco.toFixed(2)}</td>
+                <td>${p.quantidade}</td>
+                <td>${status}</td>
+                <td><button class="btn btn-danger btn-sm" onclick="excluirProduto(${index})">Excluir</button></td>
+            </tr>`;
     });
 }
 
-function atualizarSelectProdutos() {
-    let select = document.getElementById('produtoSelect');
-    select.innerHTML = '';
-    if(produtos.length === 0) {
-        select.innerHTML = '<option value="">Nenhum produto cadastrado</option>';
-        return;
+function excluirProduto(index) {
+    if(confirm('Tem certeza que deseja excluir esta peça do estoque?')) {
+        produtos.splice(index, 1);
+        localStorage.setItem('produtos', JSON.stringify(produtos));
+        renderEstoque();
     }
-    produtos.forEach((p, i) => {
-        select.innerHTML += `<option value="${i}">${p.descricao} - ${p.tamanho} - ${p.cor} (Estoque: ${p.quantidade})</option>`;
-    });
 }
 
-function adicionarCarrinho() {
-    let select = document.getElementById('produtoSelect');
-    let idx = select.value;
-    let qtdInput = document.getElementById('qtdVenda');
-    let qtd = parseInt(qtdInput.value);
-    
-    if(idx === "" || isNaN(qtd) || qtd <= 0) {
-        alert('Selecione um produto e uma quantidade válida!');
+// Lógica de Leitura/Busca no PDV
+document.getElementById('barcodeSearch').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        buscarEAdicionar();
+    }
+});
+
+function buscarEAdicionar() {
+    let input = document.getElementById('barcodeSearch');
+    let termo = input.value.trim().toLowerCase();
+    let qtd = parseInt(document.getElementById('qtdVenda').value) || 1;
+
+    if(!termo) return;
+
+    // Buscar por SKU exato ou trecho da descrição/cor
+    let index = produtos.findIndex(p => p.sku.toLowerCase() === termo || p.descricao.toLowerCase().includes(termo) || p.cor.toLowerCase().includes(termo));
+
+    if(index === -1) {
+        alert('Produto não encontrado!');
+        input.select();
         return;
     }
-    
-    if(qtd > produtos[idx].quantidade) { 
-        alert('Quantidade maior que o estoque disponível!'); 
-        return; 
+
+    let prod = produtos[index];
+
+    // Verificar se a quantidade total no carrinho ultrapassa o estoque
+    let itemNoCarrinho = carrinho.find(c => c.index === index);
+    let qtdTotalNoCarrinho = (itemNoCarrinho ? itemNoCarrinho.qtd : 0) + qtd;
+
+    if(qtdTotalNoCarrinho > prod.quantidade) {
+        alert(`Estoque insuficiente! Você já tem ${itemNoCarrinho ? itemNoCarrinho.qtd : 0} item(ns) no carrinho. Estoque máximo: ${prod.quantidade}`);
+        return;
     }
-    
-    carrinho.push({ index: idx, produto: produtos[idx], qtd });
+
+    if(itemNoCarrinho) {
+        itemNoCarrinho.qtd += qtd;
+    } else {
+        carrinho.push({ index, produto: prod, qtd });
+    }
+
+    input.value = '';
+    document.getElementById('qtdVenda').value = 1;
+    input.focus();
     renderCarrinho();
 }
 
+// Renderizar Carrinho e Calcular Totais/Desconto
 function renderCarrinho() {
     let tbody = document.querySelector('#tabelaCarrinho tbody');
     tbody.innerHTML = '';
-    let total = 0;
-    carrinho.forEach(item => {
-        let subtotal = item.qtd * item.produto.preco;
-        total += subtotal;
-        tbody.innerHTML += `<tr><td>${item.produto.descricao} (${item.produto.tamanho}/${item.produto.cor})</td><td>${item.qtd}</td><td>R$ ${item.produto.preco.toFixed(2)}</td><td>R$ ${subtotal.toFixed(2)}</td></tr>`;
+    let subtotal = 0;
+
+    carrinho.forEach((item, cIndex) => {
+        let itemSubtotal = item.qtd * item.produto.preco;
+        subtotal += itemSubtotal;
+
+        tbody.innerHTML += `
+            <tr>
+                <td>${item.produto.descricao} (${item.produto.tamanho}/${item.produto.cor})</td>
+                <td>
+                    <button class="btn btn-sm" onclick="alterarQtdCarrinho(${cIndex}, -1)">-</button>
+                    ${item.qtd}
+                    <button class="btn btn-sm" onclick="alterarQtdCarrinho(${cIndex}, 1)">+</button>
+                </td>
+                <td>R$ ${item.produto.preco.toFixed(2)}</td>
+                <td>R$ ${itemSubtotal.toFixed(2)}</td>
+                <td><button class="btn btn-danger btn-sm" onclick="removerDoCarrinho(${cIndex})">✕</button></td>
+            </tr>`;
     });
-    document.getElementById('totalVenda').innerText = total.toFixed(2);
+
+    // Cálculo de Desconto
+    let descValorInput = parseFloat(document.getElementById('descontoValor').value) || 0;
+    let descTipo = document.getElementById('descontoTipo').value;
+    let descontoFinal = 0;
+
+    if(descTipo === 'R$') {
+        descontoFinal = descValorInput;
+    } else {
+        descontoFinal = (subtotal * descValorInput) / 100;
+    }
+
+    if(descontoFinal > subtotal) descontoFinal = subtotal; // Impede desconto negativo
+
+    let totalFinal = subtotal - descontoFinal;
+
+    document.getElementById('subtotalVenda').innerText = subtotal.toFixed(2);
+    document.getElementById('descontoCalculado').innerText = descontoFinal.toFixed(2);
+    document.getElementById('totalVenda').innerText = totalFinal.toFixed(2);
 }
 
+function alterarQtdCarrinho(cIndex, delta) {
+    let item = carrinho[cIndex];
+    let novaQtd = item.qtd + delta;
+
+    if(novaQtd <= 0) {
+        removerDoCarrinho(cIndex);
+        return;
+    }
+
+    if(novaQtd > produtos[item.index].quantidade) {
+        alert('Limite de estoque atingido!');
+        return;
+    }
+
+    item.qtd = novaQtd;
+    renderCarrinho();
+}
+
+function removerDoCarrinho(cIndex) {
+    carrinho.splice(cIndex, 1);
+    renderCarrinho();
+}
+
+function limparCarrinho() {
+    carrinho = [];
+    document.getElementById('descontoValor').value = '';
+    renderCarrinho();
+}
+
+// Finalizar Venda
 function finalizarVenda() {
-    if(carrinho.length === 0) { alert('Carrinho vazio!'); return; }
-    
+    if(carrinho.length === 0) { alert('O carrinho está vazio!'); return; }
+
     let total = parseFloat(document.getElementById('totalVenda').innerText);
+    let descontoDesc = document.getElementById('descontoCalculado').innerText;
     let formaPagamento = document.getElementById('pagamento').value;
     let id = vendas.length + 1;
     let data = new Date().toLocaleString('pt-BR');
-    let itens = carrinho.map(i => `${i.qtd}x ${i.produto.descricao}`).join(', ');
-    
-    // Abater do estoque
+    let itensStr = carrinho.map(i => `${i.qtd}x ${i.produto.descricao} (${i.produto.tamanho})`).join(', ');
+
+    // Abater do Estoque
     carrinho.forEach(item => {
         produtos[item.index].quantidade -= item.qtd;
     });
-    
-    vendas.push({ id, data, itens, pagamento: formaPagamento, total });
-    
-    // Salvar no LocalStorage
+
+    vendas.push({
+        id,
+        data,
+        itens: itensStr,
+        pagamento: formaPagamento,
+        desconto: `R$ ${descontoDesc}`,
+        total
+    });
+
+    // Gravação no LocalStorage
     localStorage.setItem('produtos', JSON.stringify(produtos));
     localStorage.setItem('vendas', JSON.stringify(vendas));
-    
-    carrinho = [];
-    renderCarrinho();
-    atualizarSelectProdutos();
+
+    limparCarrinho();
     alert('Venda realizada com sucesso!');
+    showSection('pdv');
 }
 
+// Renderizar Histórico
 function renderHistorico() {
     let tbody = document.querySelector('#tabelaHistorico tbody');
     tbody.innerHTML = '';
-    vendas.forEach(v => {
-        tbody.innerHTML += `<tr><td>#${v.id}</td><td>${v.data}</td><td>${v.itens}</td><td>${v.pagamento}</td><td>R$ ${v.total.toFixed(2)}</td></tr>`;
+    vendas.slice().reverse().forEach(v => {
+        tbody.innerHTML += `
+            <tr>
+                <td><strong>#${v.id}</strong></td>
+                <td>${v.data}</td>
+                <td>${v.itens}</td>
+                <td>${v.pagamento}</td>
+                <td style="color:#dc2626;">-${v.desconto}</td>
+                <td><strong>R$ ${v.total.toFixed(2)}</strong></td>
+            </tr>`;
     });
 }
 
-// Inicializar tela
+// Teclas de Atalho globais no PDV
+document.addEventListener('keydown', e => {
+    if(!document.getElementById('pdv').classList.contains('active')) return;
+    
+    if(e.key === 'F2') {
+        e.preventDefault();
+        document.getElementById('barcodeSearch').focus();
+    }
+    if(e.key === 'F4') {
+        e.preventDefault();
+        limparCarrinho();
+    }
+    if(e.key === 'F8') {
+        e.preventDefault();
+        finalizarVenda();
+    }
+});
+
+// Inicialização
 renderEstoque();
 </script>
 </body>
