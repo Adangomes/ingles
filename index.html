@@ -53,6 +53,8 @@
     .badge { padding: 4px 8px; border-radius: 12px; color: #fff; font-size: 0.75rem; font-weight: bold; }
     .low-stock { background: #ef4444; }
     .ok-stock { background: #22c55e; }
+    .online-tag { background: #8b5cf6; }
+    .balcao-tag { background: #0284c7; }
 
     /* Layout PDV Avançado */
     .pdv-grid { display: grid; grid-template-columns: 1fr 340px; gap: 20px; }
@@ -75,6 +77,7 @@
 <div class="sidebar">
     <h2>MARIA BONITA</h2>
     <button id="btn-estoque" class="active" onclick="showSection('estoque')">Estoque / Produtos</button>
+    <button id="btn-reservas" onclick="showSection('reservas')">Reservas / Venda Online</button>
     <button id="btn-pdv" onclick="showSection('pdv')">Frente de Caixa (PDV)</button>
     <button id="btn-historico" onclick="showSection('historico')">Histórico de Vendas</button>
 </div>
@@ -116,6 +119,41 @@
         <div class="table-container">
             <table id="tabelaEstoque">
                 <thead><tr><th>SKU</th><th>Descrição</th><th>Tam</th><th>Cor</th><th>Preço</th><th>Qtd</th><th>Status</th><th>Ações</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- RESERVAS -->
+    <div id="reservas" class="section">
+        <h3>Painel de Reservas (Peças de Reserva)</h3>
+        
+        <form id="formReserva" class="form-group">
+            <input type="text" id="reservaSku" placeholder="CÓDIGO DA PEÇA (SKU)" required>
+            <input type="number" id="reservaQtd" value="1" min="1" style="width: 80px;" placeholder="Qtd">
+            <select id="reservaTipo">
+                <option value="RETIRADA">RETIRADA</option>
+                <option value="ENTREGA">ENTREGA</option>
+            </select>
+            <input type="text" id="reservaNome" placeholder="Nome do Cliente" style="flex: 2;" required>
+            <input type="text" id="reservaSdr" placeholder="SDR (Atendente)" required>
+            <button class="btn btn-primary" type="submit">+ Confirmar Reserva</button>
+        </form>
+
+        <h3>Lista de Reservas Ativas</h3>
+        <div class="table-container">
+            <table id="tabelaReservas">
+                <thead>
+                    <tr>
+                        <th>Data/Hora</th>
+                        <th>Cliente</th>
+                        <th>SDR</th>
+                        <th>Tipo</th>
+                        <th>Item(ns)</th>
+                        <th>Total</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
                 <tbody></tbody>
             </table>
         </div>
@@ -211,7 +249,7 @@
 
         <div class="table-container">
             <table id="tabelaHistorico">
-                <thead><tr><th># Pedido</th><th>Data/Hora</th><th>Itens Comprados</th><th>Pagamento</th><th>Desconto</th><th>Total</th></tr></thead>
+                <thead><tr><th># Pedido</th><th>Data/Hora</th><th>Tipo</th><th>Detalhes / SDR</th><th>Itens Comprados</th><th>Pagamento</th><th>Desconto</th><th>Total</th></tr></thead>
                 <tbody></tbody>
             </table>
         </div>
@@ -221,6 +259,7 @@
 <script>
 let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
 let vendas = JSON.parse(localStorage.getItem('vendas')) || [];
+let reservas = JSON.parse(localStorage.getItem('reservas')) || [];
 let carrinho = [];
 
 // Alternar Seções
@@ -232,6 +271,7 @@ function showSection(id) {
     document.getElementById(`btn-${id}`).classList.add('active');
     
     if(id === 'estoque') renderEstoque();
+    if(id === 'reservas') renderReservas();
     if(id === 'pdv') {
         renderCarrinho();
         setTimeout(() => document.getElementById('barcodeSearch').focus(), 100);
@@ -279,7 +319,6 @@ function renderEstoque() {
         totalPecas += p.quantidade;
         valorEstoque += (p.quantidade * p.preco);
 
-        // Filtro de busca na tabela
         if(termo && !p.sku.toLowerCase().includes(termo) && !p.descricao.toLowerCase().includes(termo) && !p.cor.toLowerCase().includes(termo)) {
             return;
         }
@@ -320,6 +359,127 @@ function excluirProduto(index) {
         produtos.splice(index, 1);
         localStorage.setItem('produtos', JSON.stringify(produtos));
         renderEstoque();
+    }
+}
+
+// LÓGICA DE RESERVAS
+document.getElementById('formReserva').addEventListener('submit', e => {
+    e.preventDefault();
+    let sku = document.getElementById('reservaSku').value.trim();
+    let qtd = parseInt(document.getElementById('reservaQtd').value) || 1;
+    let tipo = document.getElementById('reservaTipo').value;
+    let nome = document.getElementById('reservaNome').value.trim();
+    let sdr = document.getElementById('reservaSdr').value.trim();
+
+    let prodIndex = produtos.findIndex(p => p.sku.toLowerCase() === sku.toLowerCase());
+    if(prodIndex === -1) {
+        alert('Código da peça (SKU) não encontrado no estoque!');
+        return;
+    }
+
+    let prod = produtos[prodIndex];
+    if(prod.quantidade < qtd) {
+        alert(`Estoque insuficiente para a reserva! Saldo atual: ${prod.quantidade}`);
+        return;
+    }
+
+    // Abate da reserva no estoque
+    prod.quantidade -= qtd;
+
+    let agora = new Date();
+    let reserva = {
+        id: Date.now(),
+        dataHora: agora.toLocaleString('pt-BR'),
+        cliente: nome,
+        sdr: sdr,
+        tipo: tipo,
+        itemSku: prod.sku,
+        itemDesc: prod.descricao,
+        tamanho: prod.tamanho,
+        qtd: qtd,
+        precoUn: prod.preco,
+        total: qtd * prod.preco,
+        status: 'PENDENTE'
+    };
+
+    reservas.push(reserva);
+    localStorage.setItem('produtos', JSON.stringify(produtos));
+    localStorage.setItem('reservas', JSON.stringify(reservas));
+
+    e.target.reset();
+    document.getElementById('reservaQtd').value = 1;
+    renderReservas();
+    alert('Reserva cadastrada e estoque atualizado com sucesso!');
+});
+
+function renderReservas() {
+    let tbody = document.querySelector('#tabelaReservas tbody');
+    tbody.innerHTML = '';
+
+    reservas.filter(r => r.status === 'PENDENTE').forEach(r => {
+        tbody.innerHTML += `
+            <tr>
+                <td><small>${r.dataHora}</small></td>
+                <td><strong>${r.cliente}</strong></td>
+                <td>${r.sdr}</td>
+                <td><span class="badge online-tag">${r.tipo}</span></td>
+                <td>${r.qtd}x ${r.itemDesc} (${r.tamanho})</td>
+                <td><strong>R$ ${r.total.toFixed(2)}</strong></td>
+                <td>
+                    <button class="btn btn-success btn-sm" onclick="concluirVendaReserva(${r.id})">Concluir Venda</button>
+                    <button class="btn btn-danger btn-sm" onclick="cancelarReserva(${r.id})">Cancelar</button>
+                </td>
+            </tr>`;
+    });
+}
+
+function concluirVendaReserva(idReserva) {
+    let r = reservas.find(res => res.id === idReserva);
+    if(!r) return;
+
+    let formaPag = prompt(`Concluir venda da reserva de ${r.cliente}.\nQual a Forma de Pagamento? (PIX, Cartão de Crédito, Cartão de Débito, Dinheiro)`, "PIX");
+    if(!formaPag) return;
+
+    let id = vendas.length + 1;
+    let dataIso = new Date().toISOString();
+    let dataFormatada = new Date().toLocaleString('pt-BR');
+
+    vendas.push({
+        id,
+        dataIso,
+        data: dataFormatada,
+        tipoVenda: 'VENDA ONLINE',
+        detalhes: `SDR: ${r.sdr} | Cliente: ${r.cliente} (${r.tipo})`,
+        itens: `${r.qtd}x ${r.itemDesc} (${r.tamanho})`,
+        totalPecas: r.qtd,
+        pagamento: formaPag.toUpperCase(),
+        desconto: 'R$ 0.00',
+        total: r.total
+    });
+
+    r.status = 'CONCLUIDA';
+    localStorage.setItem('reservas', JSON.stringify(reservas));
+    localStorage.setItem('vendas', JSON.stringify(vendas));
+
+    renderReservas();
+    alert('Venda concluída! Registrada no histórico como VENDA ONLINE.');
+}
+
+function cancelarReserva(idReserva) {
+    if(confirm('Tem certeza que deseja cancelar esta reserva? As peças retornarão ao estoque.')) {
+        let r = reservas.find(res => res.id === idReserva);
+        if(!r) return;
+
+        let prodIndex = produtos.findIndex(p => p.sku === r.itemSku);
+        if(prodIndex !== -1) {
+            produtos[prodIndex].quantidade += r.qtd;
+            localStorage.setItem('produtos', JSON.stringify(produtos));
+        }
+
+        r.status = 'CANCELADA';
+        localStorage.setItem('reservas', JSON.stringify(reservas));
+        renderReservas();
+        alert('Reserva cancelada e peças devolvidas ao estoque.');
     }
 }
 
@@ -442,6 +602,8 @@ function finalizarVenda() {
         id,
         dataIso,
         data: dataFormatada,
+        tipoVenda: 'LOJA FÍSICA',
+        detalhes: 'Balcão',
         itens: itensStr,
         totalPecas: totalPecasVenda,
         pagamento: formaPagamento,
@@ -462,7 +624,7 @@ function renderHistorico() {
     let tbody = document.querySelector('#tabelaHistorico tbody');
     tbody.innerHTML = '';
     
-    let filtroMesAno = document.getElementById('filtroMesAno').value; // Formato YYYY-MM
+    let filtroMesAno = document.getElementById('filtroMesAno').value;
     let faturamento = 0;
     let pecasVendidas = 0;
 
@@ -476,13 +638,19 @@ function renderHistorico() {
         faturamento += v.total;
         pecasVendidas += (v.totalPecas || 1);
 
+        let badgeTipo = v.tipoVenda === 'VENDA ONLINE' 
+            ? '<span class="badge online-tag">VENDA ONLINE</span>' 
+            : '<span class="badge balcao-tag">LOJA FÍSICA</span>';
+
         tbody.innerHTML += `
             <tr>
                 <td><strong>#${v.id}</strong></td>
-                <td>${v.data}</td>
+                <td><small>${v.data}</small></td>
+                <td>${badgeTipo}</td>
+                <td><small>${v.detalhes || 'Balcão'}</small></td>
                 <td>${v.itens}</td>
                 <td>${v.pagamento}</td>
-                <td style="color:#dc2626;">-${v.desconto}</td>
+                <td style="color:#dc2626;">-${v.desconto || 'R$ 0.00'}</td>
                 <td><strong>R$ ${v.total.toFixed(2)}</strong></td>
             </tr>`;
     });
@@ -498,7 +666,7 @@ function limparFiltroData() {
 
 // Ferramentas de Dados
 function exportarDados() {
-    let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ produtos, vendas }));
+    let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ produtos, vendas, reservas }));
     let downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute("href", dataStr);
     downloadAnchor.setAttribute("download", `backup_erp_moda_${new Date().toISOString().slice(0,10)}.json`);
@@ -508,10 +676,11 @@ function exportarDados() {
 }
 
 function zerarSistema() {
-    if(confirm("ATENÇÃO: Deseja apagar TODOS os produtos e vendas gravados?")) {
+    if(confirm("ATENÇÃO: Deseja apagar TODOS os produtos, reservas e vendas gravados?")) {
         localStorage.clear();
         produtos = [];
         vendas = [];
+        reservas = [];
         renderEstoque();
         renderHistorico();
         alert("Sistema zerado com sucesso!");
