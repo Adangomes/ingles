@@ -126,38 +126,103 @@
 
     <!-- RESERVAS -->
     <div id="reservas" class="section">
-        <h3>Painel de Reservas (Peças de Reserva)</h3>
-        
-        <form id="formReserva" class="form-group">
-            <input type="text" id="reservaSku" placeholder="CÓDIGO DA PEÇA (SKU)" required>
-            <input type="number" id="reservaQtd" value="1" min="1" style="width: 80px;" placeholder="Qtd">
-            <select id="reservaTipo">
-                <option value="RETIRADA">RETIRADA</option>
-                <option value="ENTREGA">ENTREGA</option>
-            </select>
-            <input type="text" id="reservaNome" placeholder="Nome do Cliente" style="flex: 2;" required>
-            <input type="text" id="reservaSdr" placeholder="SDR (Atendente)" required>
-            <button class="btn btn-primary" type="submit">+ Confirmar Reserva</button>
-        </form>
 
-        <h3>Lista de Reservas Ativas</h3>
-        <div class="table-container">
-            <table id="tabelaReservas">
-                <thead>
-                    <tr>
-                        <th>Data/Hora</th>
-                        <th>Cliente</th>
-                        <th>SDR</th>
-                        <th>Tipo</th>
-                        <th>Item(ns)</th>
-                        <th>Total</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
+    <h3>Painel de Reservas (Peças de Reserva)</h3>
+
+    <form id="formReserva" class="form-group">
+
+        <input type="text" id="reservaSku" placeholder="CÓDIGO DA PEÇA (SKU)" required>
+
+        <input type="number" id="reservaQtd" value="1" min="1" style="width:80px;" placeholder="Qtd">
+
+        <select id="reservaTipo">
+            <option value="RETIRADA">RETIRADA</option>
+            <option value="ENTREGA">ENTREGA</option>
+        </select>
+
+        <input type="text"
+               id="reservaNome"
+               placeholder="Nome do Cliente"
+               style="flex:2;"
+               required>
+
+        <input type="text"
+               id="reservaSdr"
+               placeholder="SDR (Atendente)"
+               required>
+
+        <!-- Valor Total da Reserva -->
+        <input
+            type="text"
+            id="valorTotalReserva"
+            placeholder="Valor Total"
+            readonly
+            style="width:120px;background:#f3f4f6;"
+        >
+
+        <!-- Valor do Sinal -->
+        <input
+            type="number"
+            id="valorSinal"
+            placeholder="Sinal (R$)"
+            step="0.01"
+            required
+            style="width:120px;"
+        >
+
+        <!-- Forma de pagamento do sinal -->
+        <select id="formaSinal">
+            <option>PIX</option>
+            <option>Cartão de Crédito</option>
+            <option>Cartão de Débito</option>
+            <option>Dinheiro</option>
+        </select>
+
+        <button class="btn btn-primary" type="submit">
+            + Confirmar Reserva
+        </button>
+
+    </form>
+
+    <h3>Lista de Reservas Ativas</h3>
+
+    <div class="table-container">
+
+        <table id="tabelaReservas">
+
+            <thead>
+
+                <tr>
+
+                    <th>Data/Hora</th>
+
+                    <th>Cliente</th>
+
+                    <th>SDR</th>
+
+                    <th>Tipo</th>
+
+                    <th>Item(ns)</th>
+
+                    <th>Total</th>
+
+                    <th>Sinal</th>
+
+                    <th>Saldo</th>
+
+                    <th>Ações</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody></tbody>
+
+        </table>
+
     </div>
+
+</div>
 
     <!-- PDV -->
     <div id="pdv" class="section">
@@ -362,125 +427,297 @@ function excluirProduto(index) {
     }
 }
 
+// =========================
 // LÓGICA DE RESERVAS
+// =========================
+
 document.getElementById('formReserva').addEventListener('submit', e => {
+
     e.preventDefault();
+
     let sku = document.getElementById('reservaSku').value.trim();
     let qtd = parseInt(document.getElementById('reservaQtd').value) || 1;
     let tipo = document.getElementById('reservaTipo').value;
     let nome = document.getElementById('reservaNome').value.trim();
     let sdr = document.getElementById('reservaSdr').value.trim();
 
-    let prodIndex = produtos.findIndex(p => p.sku.toLowerCase() === sku.toLowerCase());
-    if(prodIndex === -1) {
-        alert('Código da peça (SKU) não encontrado no estoque!');
+    let prodIndex = produtos.findIndex(p=>p.sku.toLowerCase()==sku.toLowerCase());
+
+    if(prodIndex==-1){
+        alert("Código da peça não encontrado.");
         return;
     }
 
     let prod = produtos[prodIndex];
-    if(prod.quantidade < qtd) {
-        alert(`Estoque insuficiente para a reserva! Saldo atual: ${prod.quantidade}`);
+
+    if(prod.quantidade<qtd){
+        alert("Estoque insuficiente.");
         return;
     }
 
-    // Abate da reserva no estoque
-    prod.quantidade -= qtd;
+    let total = prod.preco*qtd;
 
-    let agora = new Date();
-    let reserva = {
-        id: Date.now(),
-        dataHora: agora.toLocaleString('pt-BR'),
-        cliente: nome,
-        sdr: sdr,
-        tipo: tipo,
-        itemSku: prod.sku,
-        itemDesc: prod.descricao,
-        tamanho: prod.tamanho,
-        qtd: qtd,
-        precoUn: prod.preco,
-        total: qtd * prod.preco,
-        status: 'PENDENTE'
-    };
+    let sinal = parseFloat(document.getElementById("valorSinal").value);
 
-    reservas.push(reserva);
-    localStorage.setItem('produtos', JSON.stringify(produtos));
-    localStorage.setItem('reservas', JSON.stringify(reservas));
+    if(isNaN(sinal)){
+        alert("Informe o valor do sinal.");
+        return;
+    }
+
+    if(sinal < total*0.5){
+        alert("O sinal mínimo deve ser 50% do valor da peça.");
+        return;
+    }
+
+    if(sinal>total){
+        alert("O sinal não pode ser maior que o valor da peça.");
+        return;
+    }
+
+    prod.quantidade-=qtd;
+
+    let agora=new Date();
+
+    reservas.push({
+
+        id:Date.now(),
+
+        dataHora:agora.toLocaleString("pt-BR"),
+
+        cliente:nome,
+
+        sdr:sdr,
+
+        tipo:tipo,
+
+        itemSku:prod.sku,
+
+        itemDesc:prod.descricao,
+
+        tamanho:prod.tamanho,
+
+        qtd:qtd,
+
+        precoUn:prod.preco,
+
+        total:total,
+
+        sinal:sinal,
+
+        restante:total-sinal,
+
+        formaSinal:document.getElementById("formaSinal").value,
+
+        status:"PENDENTE"
+
+    });
+
+    localStorage.setItem("produtos",JSON.stringify(produtos));
+    localStorage.setItem("reservas",JSON.stringify(reservas));
 
     e.target.reset();
-    document.getElementById('reservaQtd').value = 1;
+
+    document.getElementById("reservaQtd").value=1;
+
     renderReservas();
-    alert('Reserva cadastrada e estoque atualizado com sucesso!');
+
+    alert("Reserva criada com sucesso.");
+
 });
 
-function renderReservas() {
-    let tbody = document.querySelector('#tabelaReservas tbody');
-    tbody.innerHTML = '';
 
-    reservas.filter(r => r.status === 'PENDENTE').forEach(r => {
-        tbody.innerHTML += `
-            <tr>
-                <td><small>${r.dataHora}</small></td>
-                <td><strong>${r.cliente}</strong></td>
-                <td>${r.sdr}</td>
-                <td><span class="badge online-tag">${r.tipo}</span></td>
-                <td>${r.qtd}x ${r.itemDesc} (${r.tamanho})</td>
-                <td><strong>R$ ${r.total.toFixed(2)}</strong></td>
-                <td>
-                    <button class="btn btn-success btn-sm" onclick="concluirVendaReserva(${r.id})">Concluir Venda</button>
-                    <button class="btn btn-danger btn-sm" onclick="cancelarReserva(${r.id})">Cancelar</button>
-                </td>
-            </tr>`;
+
+function renderReservas(){
+
+    let tbody=document.querySelector("#tabelaReservas tbody");
+
+    tbody.innerHTML="";
+
+    reservas.filter(r=>r.status=="PENDENTE").forEach(r=>{
+
+        tbody.innerHTML+=`
+
+        <tr>
+
+        <td>${r.dataHora}</td>
+
+        <td>${r.cliente}</td>
+
+        <td>${r.sdr}</td>
+
+        <td><span class="badge online-tag">${r.tipo}</span></td>
+
+        <td>${r.qtd}x ${r.itemDesc}</td>
+
+        <td>R$ ${r.total.toFixed(2)}</td>
+
+        <td>
+
+            <strong>Sinal:</strong>
+
+            R$ ${r.sinal.toFixed(2)}
+
+            <br>
+
+            <strong>Saldo:</strong>
+
+            R$ ${r.restante.toFixed(2)}
+
+        </td>
+
+        <td>
+
+            <button class="btn btn-success btn-sm"
+
+            onclick="concluirVendaReserva(${r.id})">
+
+            Concluir Venda
+
+            </button>
+
+            <button class="btn btn-danger btn-sm"
+
+            onclick="cancelarReserva(${r.id})">
+
+            Cancelar
+
+            </button>
+
+        </td>
+
+        </tr>
+
+        `;
+
     });
+
 }
 
-function concluirVendaReserva(idReserva) {
-    let r = reservas.find(res => res.id === idReserva);
+
+
+function concluirVendaReserva(idReserva){
+
+    let r=reservas.find(x=>x.id==idReserva);
+
     if(!r) return;
 
-    let formaPag = prompt(`Concluir venda da reserva de ${r.cliente}.\nQual a Forma de Pagamento? (PIX, Cartão de Crédito, Cartão de Débito, Dinheiro)`, "PIX");
-    if(!formaPag) return;
+    let pagamentoFinal;
 
-    let id = vendas.length + 1;
-    let dataIso = new Date().toISOString();
-    let dataFormatada = new Date().toLocaleString('pt-BR');
+    let detalhesPagamento;
+
+    if(r.restante<=0){
+
+        pagamentoFinal="Pago Integral ("+r.formaSinal+")";
+
+        detalhesPagamento=
+
+        `SDR: ${r.sdr}
+Cliente: ${r.cliente}
+Sinal: R$ ${r.sinal.toFixed(2)} (${r.formaSinal})
+Pagamento Integral na Reserva`;
+
+    }
+
+    else{
+
+        pagamentoFinal=prompt(
+
+`Saldo restante:
+
+R$ ${r.restante.toFixed(2)}
+
+Informe a forma de pagamento:
+
+PIX
+Cartão de Crédito
+Cartão de Débito
+Dinheiro`
+
+,"PIX");
+
+        if(!pagamentoFinal) return;
+
+        detalhesPagamento=
+
+`SDR: ${r.sdr}
+Cliente: ${r.cliente}
+Sinal: R$ ${r.sinal.toFixed(2)} (${r.formaSinal})
+Restante: R$ ${r.restante.toFixed(2)} (${pagamentoFinal})`;
+
+    }
 
     vendas.push({
-        id,
-        dataIso,
-        data: dataFormatada,
-        tipoVenda: 'VENDA ONLINE',
-        detalhes: `SDR: ${r.sdr} | Cliente: ${r.cliente} (${r.tipo})`,
-        itens: `${r.qtd}x ${r.itemDesc} (${r.tamanho})`,
-        totalPecas: r.qtd,
-        pagamento: formaPag.toUpperCase(),
-        desconto: 'R$ 0.00',
-        total: r.total
+
+        id:vendas.length+1,
+
+        dataIso:new Date().toISOString(),
+
+        data:new Date().toLocaleString("pt-BR"),
+
+        tipoVenda:"VENDA ONLINE",
+
+        detalhes:detalhesPagamento,
+
+        itens:`${r.qtd}x ${r.itemDesc} (${r.tamanho})`,
+
+        totalPecas:r.qtd,
+
+        pagamento:r.restante<=0 ?
+
+        "Integral ("+r.formaSinal+")"
+
+        :
+
+        `${r.formaSinal} + ${pagamentoFinal}`,
+
+        desconto:"R$ 0.00",
+
+        total:r.total
+
     });
 
-    r.status = 'CONCLUIDA';
-    localStorage.setItem('reservas', JSON.stringify(reservas));
-    localStorage.setItem('vendas', JSON.stringify(vendas));
+    r.status="CONCLUIDA";
+
+    localStorage.setItem("reservas",JSON.stringify(reservas));
+
+    localStorage.setItem("vendas",JSON.stringify(vendas));
 
     renderReservas();
-    alert('Venda concluída! Registrada no histórico como VENDA ONLINE.');
+
+    alert("Venda concluída com sucesso.");
+
 }
 
-function cancelarReserva(idReserva) {
-    if(confirm('Tem certeza que deseja cancelar esta reserva? As peças retornarão ao estoque.')) {
-        let r = reservas.find(res => res.id === idReserva);
-        if(!r) return;
 
-        let prodIndex = produtos.findIndex(p => p.sku === r.itemSku);
-        if(prodIndex !== -1) {
-            produtos[prodIndex].quantidade += r.qtd;
-            localStorage.setItem('produtos', JSON.stringify(produtos));
-        }
 
-        r.status = 'CANCELADA';
-        localStorage.setItem('reservas', JSON.stringify(reservas));
-        renderReservas();
-        alert('Reserva cancelada e peças devolvidas ao estoque.');
+function cancelarReserva(idReserva){
+
+    if(!confirm("Deseja cancelar esta reserva?")) return;
+
+    let r=reservas.find(x=>x.id==idReserva);
+
+    if(!r) return;
+
+    let prod=produtos.find(p=>p.sku==r.itemSku);
+
+    if(prod){
+
+        prod.quantidade+=r.qtd;
+
     }
+
+    r.status="CANCELADA";
+
+    localStorage.setItem("produtos",JSON.stringify(produtos));
+
+    localStorage.setItem("reservas",JSON.stringify(reservas));
+
+    renderReservas();
+
+    renderEstoque();
+
+    alert("Reserva cancelada.");
+
 }
 
 // Lógica do PDV
