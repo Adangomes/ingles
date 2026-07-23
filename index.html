@@ -21,6 +21,13 @@
     
     h3 { margin-bottom: 15px; color: #1e293b; font-size: 1.3rem; }
     
+    /* Cards de Métricas */
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+    .metric-card { background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 4px solid #3b82f6; }
+    .metric-card.success { border-left-color: #16a34a; }
+    .metric-card span { font-size: 0.85rem; color: #64748b; font-weight: 600; text-transform: uppercase; }
+    .metric-card h4 { font-size: 1.4rem; color: #0f172a; margin-top: 5px; }
+
     /* Formulários e Inputs */
     .form-group { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
     input, select { padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; font-size: 0.95rem; }
@@ -34,6 +41,7 @@
     .btn-success:hover { background: #15803d; }
     .btn-danger { background: #dc2626; color: #fff; }
     .btn-danger:hover { background: #b91c1c; }
+    .btn-secondary { background: #64748b; color: #fff; }
     .btn-sm { padding: 4px 8px; font-size: 0.8rem; }
 
     /* Tabelas Estilizadas */
@@ -56,7 +64,7 @@
     
     .checkout-box { background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 15px; }
     .summary-line { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 1rem; color: #475569; }
-    .summary-total { font-size: 1.5rem; font-weight: bold; color: #0f172a; border-top: 2px stroke #cbd5e1; padding-top: 10px; }
+    .summary-total { font-size: 1.5rem; font-weight: bold; color: #0f172a; border-top: 2px solid #cbd5e1; padding-top: 10px; }
     
     .shortcut-bar { display: flex; gap: 10px; font-size: 0.8rem; color: #64748b; margin-top: 10px; background: #e2e8f0; padding: 8px 12px; border-radius: 6px; }
     .shortcut-bar kbd { background: #fff; padding: 2px 5px; border-radius: 4px; border: 1px solid #cbd5e1; font-weight: bold; }
@@ -74,6 +82,18 @@
 <div class="content">
     <!-- ESTOQUE -->
     <div id="estoque" class="section active">
+        <!-- Métricas Rápidas -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <span>Total de Peças em Estoque</span>
+                <h4 id="metricTotalPecas">0</h4>
+            </div>
+            <div class="metric-card success">
+                <span>Valor Investido (Estoque)</span>
+                <h4 id="metricValorEstoque">R$ 0,00</h4>
+            </div>
+        </div>
+
         <h3>Cadastro de Produto</h3>
         <form id="formProduto" class="form-group">
             <input type="text" id="sku" placeholder="Código de Barras / SKU" required>
@@ -88,7 +108,11 @@
             <button class="btn btn-primary" type="submit">+ Cadastrar Peça</button>
         </form>
 
-        <h3>Produtos Cadastrados</h3>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 25px; flex-wrap: wrap; gap: 10px;">
+            <h3>Consulta & Lista de Produtos</h3>
+            <input type="text" id="searchEstoque" placeholder="🔍 Consultar por SKU, Descrição ou Cor..." style="width: 320px;" oninput="renderEstoque()">
+        </div>
+
         <div class="table-container">
             <table id="tabelaEstoque">
                 <thead><tr><th>SKU</th><th>Descrição</th><th>Tam</th><th>Cor</th><th>Preço</th><th>Qtd</th><th>Status</th><th>Ações</th></tr></thead>
@@ -103,7 +127,6 @@
         
         <div class="pdv-grid">
             <div class="pdv-card">
-                <!-- Busca de Produto -->
                 <div class="pdv-search-box">
                     <input type="text" id="barcodeSearch" placeholder="🔍 Passe o leitor ou digite o SKU / Nome e aperte Enter" autofocus>
                     <input type="number" id="qtdVenda" value="1" min="1" style="width: 70px;" placeholder="Qtd">
@@ -116,7 +139,6 @@
                     <span><kbd>F8</kbd> Finalizar Venda</span>
                 </div>
 
-                <!-- Tabela do Carrinho -->
                 <div class="table-container">
                     <table id="tabelaCarrinho">
                         <thead><tr><th>Item</th><th>Qtd</th><th>Preço Un.</th><th>Subtotal</th><th>Ação</th></tr></thead>
@@ -125,7 +147,6 @@
                 </div>
             </div>
 
-            <!-- Resumo Financeiro & Pagamento -->
             <div class="pdv-card">
                 <h3>Resumo do Pedido</h3>
                 
@@ -162,7 +183,32 @@
 
     <!-- HISTÓRICO -->
     <div id="historico" class="section">
-        <h3>Histórico de Vendas</h3>
+        <h3>Histórico de Vendas & Relatórios</h3>
+
+        <!-- Métricas Financeiras -->
+        <div class="metrics-grid">
+            <div class="metric-card success">
+                <span>Faturamento (Período Selecionado)</span>
+                <h4 id="metricFaturamento">R$ 0,00</h4>
+            </div>
+            <div class="metric-card">
+                <span>Peças Vendidas no Período</span>
+                <h4 id="metricPecasVendidas">0</h4>
+            </div>
+        </div>
+
+        <!-- Filtros de Período -->
+        <div class="form-group" style="align-items: center; background: #fff; padding: 15px; border-radius: 8px;">
+            <label style="font-weight: 600;">Filtrar Vendas Por Mês/Ano:</label>
+            <input type="month" id="filtroMesAno" onchange="renderHistorico()">
+            <button class="btn btn-secondary btn-sm" onclick="limparFiltroData()">Ver Todo o Histórico</button>
+            
+            <div style="margin-left: auto; display: flex; gap: 10px;">
+                <button class="btn btn-secondary btn-sm" onclick="exportarDados()">💾 Exportar Backup</button>
+                <button class="btn btn-danger btn-sm" onclick="zerarSistema()">🗑️ Zera Dados</button>
+            </div>
+        </div>
+
         <div class="table-container">
             <table id="tabelaHistorico">
                 <thead><tr><th># Pedido</th><th>Data/Hora</th><th>Itens Comprados</th><th>Pagamento</th><th>Desconto</th><th>Total</th></tr></thead>
@@ -198,7 +244,6 @@ document.getElementById('formProduto').addEventListener('submit', e => {
     e.preventDefault();
     let skuDigitado = document.getElementById('sku').value.trim();
     
-    // Validar se SKU já existe
     if(produtos.some(p => p.sku === skuDigitado)) {
         alert('Já existe um produto cadastrado com esse Código/SKU!');
         return;
@@ -210,7 +255,8 @@ document.getElementById('formProduto').addEventListener('submit', e => {
         tamanho: document.getElementById('tamanho').value,
         cor: document.getElementById('cor').value.trim(),
         preco: parseFloat(document.getElementById('preco').value),
-        quantidade: parseInt(document.getElementById('quantidade').value)
+        quantidade: parseInt(document.getElementById('quantidade').value),
+        dataCadastro: new Date().toISOString()
     };
 
     produtos.push(produto);
@@ -220,11 +266,24 @@ document.getElementById('formProduto').addEventListener('submit', e => {
     alert('Produto cadastrado com sucesso!');
 });
 
-// Renderizar Estoque
+// Renderizar Estoque e Métricas
 function renderEstoque() {
     let tbody = document.querySelector('#tabelaEstoque tbody');
     tbody.innerHTML = '';
+    
+    let termo = document.getElementById('searchEstoque').value.trim().toLowerCase();
+    let totalPecas = 0;
+    let valorEstoque = 0;
+
     produtos.forEach((p, index) => {
+        totalPecas += p.quantidade;
+        valorEstoque += (p.quantidade * p.preco);
+
+        // Filtro de busca na tabela
+        if(termo && !p.sku.toLowerCase().includes(termo) && !p.descricao.toLowerCase().includes(termo) && !p.cor.toLowerCase().includes(termo)) {
+            return;
+        }
+
         let status = p.quantidade <= 3 ? '<span class="badge low-stock">Baixo</span>' : '<span class="badge ok-stock">OK</span>';
         tbody.innerHTML += `
             <tr>
@@ -233,11 +292,27 @@ function renderEstoque() {
                 <td>${p.tamanho}</td>
                 <td>${p.cor}</td>
                 <td>R$ ${p.preco.toFixed(2)}</td>
-                <td>${p.quantidade}</td>
+                <td><strong>${p.quantidade} un</strong></td>
                 <td>${status}</td>
-                <td><button class="btn btn-danger btn-sm" onclick="excluirProduto(${index})">Excluir</button></td>
+                <td>
+                    <button class="btn btn-primary btn-sm" onclick="reporEstoque(${index})">+ Repor</button>
+                    <button class="btn btn-danger btn-sm" onclick="excluirProduto(${index})">Excluir</button>
+                </td>
             </tr>`;
     });
+
+    document.getElementById('metricTotalPecas').innerText = totalPecas;
+    document.getElementById('metricValorEstoque').innerText = `R$ ${valorEstoque.toFixed(2)}`;
+}
+
+function reporEstoque(index) {
+    let qtdAdd = prompt(`Quantas unidades deseja adicionar ao estoque de "${produtos[index].descricao}"?`, "1");
+    let num = parseInt(qtdAdd);
+    if(num && num > 0) {
+        produtos[index].quantidade += num;
+        localStorage.setItem('produtos', JSON.stringify(produtos));
+        renderEstoque();
+    }
 }
 
 function excluirProduto(index) {
@@ -248,11 +323,9 @@ function excluirProduto(index) {
     }
 }
 
-// Lógica de Leitura/Busca no PDV
+// Lógica do PDV
 document.getElementById('barcodeSearch').addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') {
-        buscarEAdicionar();
-    }
+    if (e.key === 'Enter') buscarEAdicionar();
 });
 
 function buscarEAdicionar() {
@@ -262,8 +335,7 @@ function buscarEAdicionar() {
 
     if(!termo) return;
 
-    // Buscar por SKU exato ou trecho da descrição/cor
-    let index = produtos.findIndex(p => p.sku.toLowerCase() === termo || p.descricao.toLowerCase().includes(termo) || p.cor.toLowerCase().includes(termo));
+    let index = produtos.findIndex(p => p.sku.toLowerCase() === termo || p.descricao.toLowerCase().includes(termo));
 
     if(index === -1) {
         alert('Produto não encontrado!');
@@ -272,13 +344,11 @@ function buscarEAdicionar() {
     }
 
     let prod = produtos[index];
-
-    // Verificar se a quantidade total no carrinho ultrapassa o estoque
     let itemNoCarrinho = carrinho.find(c => c.index === index);
     let qtdTotalNoCarrinho = (itemNoCarrinho ? itemNoCarrinho.qtd : 0) + qtd;
 
     if(qtdTotalNoCarrinho > prod.quantidade) {
-        alert(`Estoque insuficiente! Você já tem ${itemNoCarrinho ? itemNoCarrinho.qtd : 0} item(ns) no carrinho. Estoque máximo: ${prod.quantidade}`);
+        alert(`Estoque insuficiente! Saldo atual no estoque: ${prod.quantidade}`);
         return;
     }
 
@@ -294,7 +364,6 @@ function buscarEAdicionar() {
     renderCarrinho();
 }
 
-// Renderizar Carrinho e Calcular Totais/Desconto
 function renderCarrinho() {
     let tbody = document.querySelector('#tabelaCarrinho tbody');
     tbody.innerHTML = '';
@@ -318,18 +387,11 @@ function renderCarrinho() {
             </tr>`;
     });
 
-    // Cálculo de Desconto
     let descValorInput = parseFloat(document.getElementById('descontoValor').value) || 0;
     let descTipo = document.getElementById('descontoTipo').value;
-    let descontoFinal = 0;
+    let descontoFinal = descTipo === 'R$' ? descValorInput : (subtotal * descValorInput) / 100;
 
-    if(descTipo === 'R$') {
-        descontoFinal = descValorInput;
-    } else {
-        descontoFinal = (subtotal * descValorInput) / 100;
-    }
-
-    if(descontoFinal > subtotal) descontoFinal = subtotal; // Impede desconto negativo
+    if(descontoFinal > subtotal) descontoFinal = subtotal;
 
     let totalFinal = subtotal - descontoFinal;
 
@@ -342,15 +404,8 @@ function alterarQtdCarrinho(cIndex, delta) {
     let item = carrinho[cIndex];
     let novaQtd = item.qtd + delta;
 
-    if(novaQtd <= 0) {
-        removerDoCarrinho(cIndex);
-        return;
-    }
-
-    if(novaQtd > produtos[item.index].quantidade) {
-        alert('Limite de estoque atingido!');
-        return;
-    }
+    if(novaQtd <= 0) { removerDoCarrinho(cIndex); return; }
+    if(novaQtd > produtos[item.index].quantidade) { alert('Limite de estoque atingido!'); return; }
 
     item.qtd = novaQtd;
     renderCarrinho();
@@ -367,7 +422,6 @@ function limparCarrinho() {
     renderCarrinho();
 }
 
-// Finalizar Venda
 function finalizarVenda() {
     if(carrinho.length === 0) { alert('O carrinho está vazio!'); return; }
 
@@ -375,24 +429,26 @@ function finalizarVenda() {
     let descontoDesc = document.getElementById('descontoCalculado').innerText;
     let formaPagamento = document.getElementById('pagamento').value;
     let id = vendas.length + 1;
-    let data = new Date().toLocaleString('pt-BR');
+    let dataIso = new Date().toISOString();
+    let dataFormatada = new Date().toLocaleString('pt-BR');
+    let totalPecasVenda = carrinho.reduce((acc, i) => acc + i.qtd, 0);
     let itensStr = carrinho.map(i => `${i.qtd}x ${i.produto.descricao} (${i.produto.tamanho})`).join(', ');
 
-    // Abater do Estoque
     carrinho.forEach(item => {
         produtos[item.index].quantidade -= item.qtd;
     });
 
     vendas.push({
         id,
-        data,
+        dataIso,
+        data: dataFormatada,
         itens: itensStr,
+        totalPecas: totalPecasVenda,
         pagamento: formaPagamento,
         desconto: `R$ ${descontoDesc}`,
         total
     });
 
-    // Gravação no LocalStorage
     localStorage.setItem('produtos', JSON.stringify(produtos));
     localStorage.setItem('vendas', JSON.stringify(vendas));
 
@@ -401,11 +457,25 @@ function finalizarVenda() {
     showSection('pdv');
 }
 
-// Renderizar Histórico
+// Histórico e Filtros por Data
 function renderHistorico() {
     let tbody = document.querySelector('#tabelaHistorico tbody');
     tbody.innerHTML = '';
-    vendas.slice().reverse().forEach(v => {
+    
+    let filtroMesAno = document.getElementById('filtroMesAno').value; // Formato YYYY-MM
+    let faturamento = 0;
+    let pecasVendidas = 0;
+
+    let vendasFiltradas = vendas.filter(v => {
+        if(!filtroMesAno) return true;
+        let dataVenda = v.dataIso ? v.dataIso.substring(0, 7) : "";
+        return dataVenda === filtroMesAno;
+    });
+
+    vendasFiltradas.slice().reverse().forEach(v => {
+        faturamento += v.total;
+        pecasVendidas += (v.totalPecas || 1);
+
         tbody.innerHTML += `
             <tr>
                 <td><strong>#${v.id}</strong></td>
@@ -416,24 +486,44 @@ function renderHistorico() {
                 <td><strong>R$ ${v.total.toFixed(2)}</strong></td>
             </tr>`;
     });
+
+    document.getElementById('metricFaturamento').innerText = `R$ ${faturamento.toFixed(2)}`;
+    document.getElementById('metricPecasVendidas').innerText = pecasVendidas;
 }
 
-// Teclas de Atalho globais no PDV
+function limparFiltroData() {
+    document.getElementById('filtroMesAno').value = '';
+    renderHistorico();
+}
+
+// Ferramentas de Dados
+function exportarDados() {
+    let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ produtos, vendas }));
+    let downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `backup_erp_moda_${new Date().toISOString().slice(0,10)}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+}
+
+function zerarSistema() {
+    if(confirm("ATENÇÃO: Deseja apagar TODOS os produtos e vendas gravados?")) {
+        localStorage.clear();
+        produtos = [];
+        vendas = [];
+        renderEstoque();
+        renderHistorico();
+        alert("Sistema zerado com sucesso!");
+    }
+}
+
+// Atalhos Globais
 document.addEventListener('keydown', e => {
     if(!document.getElementById('pdv').classList.contains('active')) return;
-    
-    if(e.key === 'F2') {
-        e.preventDefault();
-        document.getElementById('barcodeSearch').focus();
-    }
-    if(e.key === 'F4') {
-        e.preventDefault();
-        limparCarrinho();
-    }
-    if(e.key === 'F8') {
-        e.preventDefault();
-        finalizarVenda();
-    }
+    if(e.key === 'F2') { e.preventDefault(); document.getElementById('barcodeSearch').focus(); }
+    if(e.key === 'F4') { e.preventDefault(); limparCarrinho(); }
+    if(e.key === 'F8') { e.preventDefault(); finalizarVenda(); }
 });
 
 // Inicialização
